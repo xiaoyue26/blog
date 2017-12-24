@@ -5,6 +5,7 @@ tags:
 - 设计模式
 categories:
 - java
+- 设计模式
 ---
 
 网上说得很清楚了：
