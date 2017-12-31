@@ -16,7 +16,32 @@ categories:
 > 导致结果错误.
 spark-sql能正常处理.
 
-子查询中重命名列时,如果和原有表中某列名相同,将优先取原有表的列值.
+子查询中重命名列时,如果和原有表中某列名相同,并且where条件中有那一列,取原有表的列值.
+构造测试用例:
+```
+SELECT * FROM
+(SELECT 123 as paperid
+FROM  temp.feng_test1
+where paperid=70455
+)AS a
+```
+上述查询的结果是70455,而不是我们想象中的123. 
+而这个查询:
+```
+SELECT * FROM
+(SELECT 123 as paperid
+FROM  temp.feng_test1
+)AS a
+```
+或这个查询:
+```
+SELECT * FROM
+(SELECT 123 as paperid
+FROM  (select 70455 as paperid) as t 
+where paperid=70455
+)AS a
+```
+都能正确返回123.
 
 # 2. GROUP BY+UDF+Serde复合bug
 > 导致抛异常退出.
