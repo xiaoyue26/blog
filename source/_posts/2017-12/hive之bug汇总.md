@@ -1,6 +1,6 @@
 ---
 title: hive之bug汇总
-date: 2017-12-25 18:01:19
+date: 2017-12-20 18:01:19
 tags: hive
 categories:
 - hadoop

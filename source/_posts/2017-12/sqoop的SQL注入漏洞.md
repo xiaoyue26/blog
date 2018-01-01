@@ -1,6 +1,6 @@
 ---
 title: sqoop的SQL注入漏洞
-date: 2017-12-31 21:29:38
+date: 2017-12-01 21:29:38
 tags: sqoop sql注入
 categories:
 - hadoop 
