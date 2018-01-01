@@ -51,7 +51,17 @@ select  es
 FROM ttt
 GROUP BY es,province,ipOprator with cube
 ```
-通过研读hive的percentile函数实现, 将其重写为可以进行局部聚合:
+查看hive的percentile源码实现,其对于同一个key的处理逻辑大致这么几步:
+```
+(依次输入每个value)
+1. O(n)
+把所有value放进一个Map<value,LongWriteable>里,相同的value则增加map中的计数值;
+2. O(nlogn)
+在reduce中把map中的所有entry放入一个List中,然后对List根据value值进行全排序(`Collections.sort(entriesList, new MyComparator());`);
+3. O(n)
+从头开始扫一遍上一步的List, 根据计数器的值总和,分位数,定位到对应的分位数,返回.
+```
+将其重写为可以进行局部聚合, 从而略去第一步:
 ```
 select  es
        ,province
@@ -65,6 +75,9 @@ FROM (select es,province,ipOprator,c1,count(1) as num
 GROUP BY es,province,ipOprator with cube
 ```
 优化后,时间缩短到30分钟.
+
+- TODO:
+优化第二步中的全排序. 
 
 
 ## 4. 局部聚合2: 相同key聚合
