@@ -58,7 +58,7 @@ ExecutorService中的任务的生命周期:
 # 线程池的局限
 1. 适用于同构任务,异构任务分解粒度不够细,提升不够大;
 
-# 取消与关闭
+# 第七章 取消与关闭
 ## 背景:
 > java中无法简单\安全得停止取消某个线程;
 需要使用中断(一种协作机制),从一个线程发出取消请求,中断另一个线程.因此其实需要被中断的线程预先提供安全停止\取消的方法,其中包括清理资源等操作.
@@ -110,3 +110,27 @@ close或wakeup方法. 抛出`ClosedSelectorException`.
 
 (4)等待内置锁.
 使用Lock类中的`lockInterruptible`方法.
+
+
+# 取消策略的设计
+1.设置取消信号量.
+> 太山寨. 缺陷:
+(1) while循环中不能有阻塞,否则无法取消.
+因此需要检查while循环中的每一行代码,确保安全比较麻烦.
+
+2.捕获中断异常.自定义存盘操作.
+```
+// 用cancel接口封装后调用.
+public void cancel(){this.interrupt();}
+```
+
+3.任务交给ExecutorService托管.// 本质上调了interrupt. 
+
+4.使用毒丸对象.
+> 缺陷: 仅当生产者消费者数量已知情况.无界队列场景下使用.
+
+## Executors保存进度
+shutdownNow会返回尚未开始的线程列表. 无法获得中途取消的. 
+可以自己封装一遍ExecutorsService. 重写execute方法,捕获异常判断状态,记录取消的线程.
+详见代码:
+https://github.com/xiaoyue26/scala-gradle-demo/blob/master/src/main/java/practice/chapter7/TrackingExecutor.java
