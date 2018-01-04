@@ -77,6 +77,12 @@ all: 扫全表
 - TODO:
 研究除了子查询以外的方式使用索引.
 
+此外, 索引对于数据类型敏感, 查询中存在字符串和date类型相等的时候, 无法利用索引,
+需要将date类型转成字符串.
+```
+dt = date_format(date_sub(current_date, interval 1 day), '%Y-%m-%d')
+```
+
 ### STEP 2
 
 检查后台,发现许多连接状态都是:
