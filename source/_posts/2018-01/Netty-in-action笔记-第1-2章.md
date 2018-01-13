@@ -23,7 +23,7 @@ https://github.com/ReactivePlatform/netty-in-action-cn
 2. Netty社区很活跃.
 
 ### 1.1.2 Netty框架的组成
-[图片]
+{% img /images/netty-chapter1.png 400 600 Netty框架 %}
 
 ## 1.2 异步设计
 Netty中主要使用了回调+Future. 
