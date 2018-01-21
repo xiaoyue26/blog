@@ -3,7 +3,8 @@ title: hive抽样
 date: 2018-01-20 19:25:01
 tags: hive
 categories:
-- hive 
+- hadoop
+- hive
 
 ---
 
