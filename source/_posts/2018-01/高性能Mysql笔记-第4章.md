@@ -268,8 +268,16 @@ Alter table xxx
 Alter Column duration Set Default 5;
 ```
 
-所以尽量不要使用Modify语句. (尽量直接修改元数据)
-// 修改列的方法包括: Alter Column,Modify Column,Change Column. // TODO
+修改列的方法包括: Alter Column,Modify Column,Change Column.
+
+- `ALter Column`: 只能修改列的默认值.直接修改元数据,非常快.
+```
+alter table film alter column rental_duration set default 5;  
+alter table film alter column rental_duration drop default;
+```
+
+- `Change Column`: 可以修改列的一切. 修改数据(重建表)
+- `Modify Column`: 比change少一个重命名功能,其他一样.
 
 ### 4.5.1 只修改元数据(.frm文件)
 适用场景:
