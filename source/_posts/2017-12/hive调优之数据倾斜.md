@@ -1,7 +1,10 @@
 ---
 title: hive调优之数据倾斜
 date: 2017-12-26 19:35:00
-tags:
+tags: hive
+categories:
+- hadoop
+- hive
 ---
 
 上一篇中记录了hive调优的一些常规手段. 但对于某些数据集, 常规手段是无能为力的, 例如数据倾斜时.
