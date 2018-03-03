@@ -271,5 +271,69 @@ Innodb_autoinc _lock_mode有三个取值:
 
 explain时，如果`Extra`列的值为`Using index`，说明利用了覆盖索引。
 
+回顾一下三星评价系统:
+1星: 常用查询的范围查询能利用到索引(顺序IO);
+2星: 常用查询的Order BY能利用到索引;
+3星: 常用查询的输出只包含索引. (避免二次查找,减少磁盘IO, 覆盖索引)
+因此如果一个覆盖索引,同时又能满足1星和2星,那就是3星级的索引了.
+
+**覆盖索引相关优化:**
+1. 索引为: (actor,title)
+```
+select * from products
+where actor='SEAN CARREY' 
+ AND title like '%APOLO%'
+```
+上述查询explain以后,`Extra`列为`Using Where`,说明没有用到覆盖索引.
+原因是,`select *`包含的是所有列,而索引只有两列,不符合覆盖索引的定义. 
+用到的索引是actor前缀索引,title无法应用到,因为用的Like模糊查询.
+
+查询流程大致为:
+(1) 使用actor前缀索引,取出表中符合条件的主键地址;// 第1次磁盘IO
+(2) 使用(1)中的主键地址,回表(读磁盘)取出相应的数据行. // 第2次磁盘IO
+
+2. 索引为: (actor,title,pro_id)
+```
+select *
+FROM product
+JOIN (
+    select prod_id
+    FROM product
+    WHERE actor='SEAN CARREY' AND title like '%APOLO%'
+    )AS t1 
+  ON t1.prod_id=t2.prod_id
+```
+上述查询explain以后,`Extra`列为`Using where;Using index`.说明用到了覆盖索引.
+原因是,子查询中输出的列是prod_id,包含在索引中,因此省去了此处的二次查询.
+随后进行了延迟关联,找出product表中的其他列.
+查询流程大致为:
+(1)使用actor前缀索引,取出表中符合条件的索引与主键地址;//第1次磁盘IO
+(2)使用(1)中的进行join,取出表中其他数据列.//第2次磁盘IO
+
+由于都要使用两次磁盘IO,
+1和2查询的效率取决于where条件中匹配返回的行数,假设这个product表有100W行:
+**(1) 返回行数很多:**
+actor过滤后剩下3W行,title过滤后剩下2W行; 
+1和2查询效率相同:
+大部分时间在发送和读取数据上;
+**(2) 返回行数很少:**
+actor过滤后剩下3W行,title过滤后剩下40行;
+2的查询效率高很多:
+2读取3W个id,40个整行;1读取3w个整行.
+**(3) 总数据量少,返回行数也少:**
+actor过滤后剩下50行,title过滤后剩下40行;
+1和2查询效率相近:
+2读取50个id,40个整行;1读取50个整行.
+
+上述查询的执行框架:
+1. 使用索引actor从存储引擎获取数据行;
+2. 将数据行读入服务器层,用title进行过滤.
+
+因此上述优化针对的是减少存储引擎读取到服务器层的数据行.
+上述优化只针对Mysql5.6版本之前. 5.6之后,有Index condition pushdown (索引条件推送), 把查询条件推送到存储引擎, 减少读取的数据量.
+
+
+
+
 -- TO BE CONTINUE...
 
