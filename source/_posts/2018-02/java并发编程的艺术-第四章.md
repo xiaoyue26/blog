@@ -215,3 +215,159 @@ public class TestCancel2 {
 4. 其他....
 详见:
 https://github.com/xiaoyue26/scala-gradle-demo/tree/master/src/main/java/practice/chapter7
+
+
+## 4.3 线程间通信
+
+### 4.3.1 使用volatile和synchronized
+首先，本质上是使用共享内存进行通信，同步则是使用`volatile`附带的内存屏障和`sychronized`带来的内置锁。（排他锁）
+下面分别介绍`volatile`和`synchronized`：
+### volatile
+`volatile`主要作用就是让写入能够尽快从cpu缓存刷新到内存；
+而读则尽量读内存。（最新数据）
+
+应用场景：
+一个线程写，其他线程只读的场景。
+
+出错场景：（这种场景应改用`AtomicInteger`等原子类）
+多个线程写：
+1. 线程A进行自增操作，从1增加到2；
+2. 线程B进行自增操作，从1增加到2；
+3. A,B分别先读后写，最后都写入2，因此出错。（还有其他次序及结果）
+
+底层内存屏障：
+1. volatile写：
+```
+StoreStore屏障
+volatile写
+StoreLoad屏障
+```
+2. volatile读：
+```
+volatile读
+LoadLoad屏障
+LoadStore屏障
+```
+
+用`volatile`模拟锁,辅助线程同步(通信)：
+```
+volatile boolean flag=false;
+//线程A:
+a=10;
+flag=true;
+
+//线程B:
+int i;
+while(true){
+if(flag){
+i=a;// 保证获取到了A里的10
+break;
+}
+}
+```
+
+还有其他库里的同步类，原子类也是在`volatile`的基础上，加上CAS操作实现的。
+
+
+### Synchronized
+`synchronized`用于线程同步时，使用的是对象的内置锁。
+1. Java代码层面： `synchronized`
+2. class字节码层面： `monitorenter`,`monitorexit`,`ACC_SYNCHRONIZED`指令
+3. 执行层面：多个线程竞争某个对象的内置锁，这个内置锁是排他的，一次只有一个线程能够成功获得内置锁。
+线程获取内置锁有成功失败两种情况:
+（1） Thread==`Monitor enter`=>失败=>进入同步队列(`Blocked`状态);
+（2）Thread==`Monitor enter`=>成功=>结束后释放锁,唤醒同步队列的线程.
+
+相关字节码实验：
+1. 源代码：
+```
+public class SynchronizedTest{
+    public static void main(String[]args){
+        synchronized(SynchronizedTest.class){
+            // do something
+        }
+    }
+    
+    public static synchronized void m(){
+            // do something
+    }
+}
+```
+
+2. **反编译class文件**
+```
+javap -v <xxx.class>
+```
+结果大致如下:
+```
+// 省略几行
+Constant pool:
+   // 省略此处的#1~#27常量.(包括符号引用)
+{
+ // 省略一些
+  public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: ACC_PUBLIC, ACC_STATIC // 访问修饰符
+    Code:
+      stack=2, locals=3, args_size=1
+         0: ldc           #2// class practice/art/chapter4/SynchronizedTest
+         2: dup
+         3: astore_1
+         4: monitorenter // 获取锁
+         5: aload_1
+         6: monitorexit  // 释放锁
+         7: goto          15
+        10: astore_2
+        11: aload_1
+        12: monitorexit
+        13: aload_2
+        14: athrow
+        15: invokestatic  #3                  // Method m:()V
+        18: return
+      // 省略很多
+  public static synchronized void m();
+    descriptor: ()V
+    flags: ACC_PUBLIC, ACC_STATIC, ACC_SYNCHRONIZED         
+                     //注意这里的ACC_SYNCHRONIZED
+    Code:
+      stack=0, locals=0, args_size=0
+         0: return
+      LineNumberTable:
+        line 16: 0
+}
+SourceFile: "SynchronizedTest.java"
+```
+
+### 4.3.2 等待/通知机制
+
+相关Java方法：
+| 方法          | 描述    |
+| :--------:   | :----- |
+| obj.wait() | 在某个对象上等待         | 
+| obj.notify()| 通知1个在该对象上等待的线程，使其从wait()方法返回。  | 
+| obj.notifyAll()|通知所有在该对象上等待的线程。|
+
+
+示例代码:
+```
+static Object obj=new Object();
+// A:
+synchronized(obj){
+    obj.wait();
+}
+// B:
+synchronized(obj){
+    obj.notify();
+}
+// 注意A得先启动，不然B发送的通知A可能收不到，就永远没人唤醒A了。
+// 使用park,unpark可以避免这种情况。
+```
+
+
+### 4.3.4 管道输入/输出流
+依然是使用共享内存进行通信的一种方法。具体实现有2种：
+1. 面向字节：`PipedOutputStream`/`PipedInputStream`；
+2. 面向字符：`PipedReader`/`PipedWriter`。
+
+
+ 
