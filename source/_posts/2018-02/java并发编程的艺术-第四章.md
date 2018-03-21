@@ -369,5 +369,67 @@ synchronized(obj){
 1. 面向字节：`PipedOutputStream`/`PipedInputStream`；
 2. 面向字符：`PipedReader`/`PipedWriter`。
 
+示例代码：
+```
+PipedWriter out=new PipedWriter();
+PipedReader in=new PipedReader();
+out.connect(in);// 注意这里，需要连接，否则出错
+// 写：
+out.write(xxx);
+// 读：
+while(receive=in.read()!=-1){
+    System.out.print((char)receive);
+}
+// 事后XD：
+finally{
+    out.close();
+}
+```
+
+### threadA.join()用于线程同步
+假如threadB中调用`threadA.join()`，意思就是等待`threadA`线程对象退出。
+本质上`join`是一个`sychronized`方法，调用了线程对象的`wait`方法：
+```
+public final synchronized void join(long millis)
+    throws InterruptedException {
+        long base = System.currentTimeMillis();
+        long now = 0;
+
+        if (millis < 0) {
+            throw new IllegalArgumentException("timeout value is negative");
+        }
+
+        if (millis == 0) {
+            while (isAlive()) {
+                wait(0);
+            }
+        } else {
+            while (isAlive()) {
+                long delay = millis - now;
+                if (delay <= 0) {
+                    break;
+                }
+                wait(delay);
+                now = System.currentTimeMillis() - base;
+            }
+        }
+    }
+```
+
+因此`join`方法的特性大致与`wait`方法相同：线程状态变成`waiting`,能接受中断(IDE会提示受检异常)，接受`notify`，等待时会释放锁。
+而`threadA`线程对象退出的时候，会调用`notifyAll`方法，通知所有等待它退出的线程。
+
+
+## 4.4 线程应用实例
+这节主要写了一个简单的线程池构造、使用示例，Web服务器示例。
+实现中：
+1. 线程通信使用了原子变量`AtomicInteger`进行数据记录，记录多个线程成功及失败的线程数；
+2. 连接池的线程安全委托给了`LinkedList`，但是用`Collections.synchronizedList`包装了一下；另一个地方的实现则是用`synchronized`对所有相关容器的访问进行保护；
+3. 实验相关的代码，为了加大线程的冲突，用`countDownLatch`同步了线程的启动和结束；
+4. 使用了wait/notify机制，尽量使用了`notify`而不是`notifyAll`，避免唤醒太多；(感觉可以考虑使用`unpark`)
+
+
+
+
 
  
