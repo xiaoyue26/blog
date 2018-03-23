@@ -189,7 +189,7 @@ AQS中自底向上的3类方法：
 2. 可重写的方法（调用1的方法）；
 3. 模版方法；（固定，调用1，2的方法）
 
-AQS在设计上是基于模版方法模式的抽象类。也就是说，我们需要新增一个子类继承AQS，然后重写上述第二类方法。
+AQS在设计上是基于模版方法模式的抽象类。也就是说，我们需要新增一个子类继承AQS，然后重写上述第2类方法。而第1类和第3类方法，要么是private的无法继承，要么是final的无法重写。而第二类方法，如果没有重写，默认实现只有一行`throw new UnsupportedOperationException();`,调用的时候就会直接抛异常了。
 
 **基础方法**
 1. `getState()`: 获取当前同步状态；
@@ -219,6 +219,213 @@ AQS在设计上是基于模版方法模式的抽象类。也就是说，我们�
 |Condition< Thread>getQueuedThreads()|获取同步队列线程集合
 |其他| 其他响应中断/超时返回的版本的方法
 
+**案例之-独占锁**
+`Mutex`的实现：
+```
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.AbstractQueuedSynchronizer;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+
+public class Mutex implements Lock {
+    private static class Sync extends AbstractQueuedSynchronizer {
+        @Override
+        protected boolean isHeldExclusively() {
+            return getState() == 1;
+        }
+
+        @Override
+        public boolean tryAcquire(int acquireds) {
+            if (compareAndSetState(0, 1)) {
+                setExclusiveOwnerThread(Thread.currentThread());
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected boolean tryRelease(int releases) {
+            if (getState() == 0) {
+                throw new IllegalMonitorStateException();
+            }
+            setExclusiveOwnerThread(null);
+            setState(0);
+            return true;
+        }
+
+        Condition newCondition() {
+            return new ConditionObject();
+        }
+    }
+
+    // 将操作委托给sync实现即可。
+    private final Sync sync = new Sync(); // (代理)
+
+    @Override
+    public void lock() {
+        sync.acquire(1);
+    }
+
+    @Override
+    public void lockInterruptibly() throws InterruptedException {
+        sync.acquireInterruptibly(1);
+    }
+
+    @Override
+    public boolean tryLock() {
+        return sync.tryAcquire(1);
+    }
+
+    @Override
+    public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
+        return sync.tryAcquireNanos(1, unit.toNanos(time));
+    }
+
+    @Override
+    public void unlock() {
+        sync.release(1);
+    }
+
+    @Override
+    public Condition newCondition() {
+        return sync.newCondition();
+    }
+
+    // 不在Lock接口中，但是有用的方法：
+    public boolean isLocked() {
+        return sync.isHeldExclusively();
+    }
+
+    public boolean hasQueuedThread() {
+        return sync.hasQueuedThreads();
+    }
+}
+```
+上述`sync`只实现了独占操作，因此调用共享操作会抛异常。
+因此`mutex`中只调用了`sync`的独占模版方法。
+因此`mutex`最多是一个独占锁。
+
+**案例之-TwinsLock**
+用AQS实现一个最多能被两个线程同时占据的锁。
+`TwinsLock`实现：
+```
+public class TwinsLock implements Lock {
+
+    private static final class Sync extends AbstractQueuedSynchronizer {
+        Sync(int count) {
+            if (count <= 0) {
+                throw new IllegalArgumentException("count must larger than 0");
+            }
+            setState(count);
+        }
+
+        @Override
+        public int tryAcquireShared(int reduceCount) {
+            for (; ; ) {
+                int current = getState();
+                int newCount = current - reduceCount;
+                if (newCount < 0 || compareAndSetState(current, newCount)) {
+                    return newCount;
+                }
+            }
+        }
+
+        @Override
+        public boolean tryReleaseShared(int returnCount) {
+            for (; ; ) {
+                int current = getState();
+                int newCount = current + returnCount;
+                if (compareAndSetState(current, newCount)) {
+                    return true;
+                }
+            }
+        }
+
+        // 额外的:
+        Condition newCondition() {
+            return new ConditionObject();
+        }
+    }
+
+    private final Sync sync = new Sync(2);// 最多俩人共享
+
+    @Override
+    public void lock() {
+        sync.acquireShared(1);
+    }
+
+    @Override
+    public void unlock() {
+        sync.releaseShared(1);
+    }
+
+    @Override
+    public void lockInterruptibly() throws InterruptedException {
+        sync.acquireSharedInterruptibly(1);
+    }
+
+    @Override
+    public boolean tryLock() {
+        return sync.tryAcquireShared(1) >= 0;
+    }
+
+    @Override
+    public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
+        return sync.tryAcquireSharedNanos(1, unit.toNanos(time));
+    }
+
+
+    @Override
+    public Condition newCondition() {
+        return sync.newCondition();
+    }
+
+}
+```
+与`Mutex`不同的是，`TwinsLock`中的同步器主要重写了AQS的共享方法，`Lock`接口中也调用的是共享方法。也就是按照共享式访问编写，然后用`count`控制同步资源数。
+
+### 5.2.2 AQS的实现分析
+上面讲了`Lock`,`Condition`的使用，`AQS`的使用（用来自定义`Lock`），下面讲`AQS`的实现。
+
+**同步队列**
+
+- 同步队列与等待队列
+AQS即队列同步器，很重要的一个概念就是同步，要控制多个线程对于一个锁的访问获取释放。
+获取锁失败的线程都会进入同步队列，而一个lock上可以有多个condition,获取锁成功后还需要等待某个condition的线程进入等待队列，然后释放锁。
+
+同步队列是一个FIFO队列，实现上使用一个双向链表。
+等待队列也是一个FIFO队列，实现上使用一个单向链表。
+
+同步队列的基本结构：
+{% img /images/syncqueue.png 400 600 SyncQueue %}
+
+加上等待队列后的结构：
+{% img /images/waitingqueue.png 400 600 WaitingQueue %}
+
+因为节点可以在同步队列和等待队列之间转化。（同步队列中节点获得锁后，可能发现需要等待condition，进入等待队列尾部；等待队列中节点唤醒后进入同步队列尾部）
+JDK中将两个链表的节点的数据结构杂糅在了一起，大致如下：
+
+|属性|描述|
+|:-: | -: | 
+|Thread thread | 线程引用。
+|Node prev | 同步队列使用。前驱同步节点。
+|Node next | 同步队列使用。后继同步节点。
+|Node nextWaiter| 等待队列使用。后继等待节点。
+|int waitStatus| 等待状态。
+
+其中的waitStatus取值包括：
+`Cancelled`：1. 同步队列中等待超时或被中断;
+`Signal`：-1. 当前节点释放了同步状态或者被取消。
+`Condition`: -2. 当前节点等待某个Condition，进入等待队列。
+`Propagate`: -3. 下一次共享式同步状态获取将会无条件地被传播下去。(没看懂.TODO)
+`Initial`: 0. 初始状态。
+
+同步队列遵循FIFO，AQS中保存了head和tail。
+每次唤醒时，唤醒head；（由于每次由已经获取锁的线程完成，只有一个线程，没有并发，因此不需要CAS）
+每次新增线程时，用CAS新增更改tail。(各种链表指针操作)
+
+**独占式同步状态的获取与释放**
 
 
 
