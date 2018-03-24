@@ -425,9 +425,78 @@ JDK中将两个链表的节点的数据结构杂糅在了一起，大致如下�
 每次唤醒时，唤醒head；（由于每次由已经获取锁的线程完成，只有一个线程，没有并发，因此不需要CAS）
 每次新增线程时，用CAS新增更改tail。(各种链表指针操作)
 
-**独占式同步状态的获取与释放**
+
+- `自旋`：
+同步队列中的线程被唤醒的两种可能：
+1. 被中断；
+2. 被离开队列的首节点唤醒。
+每次被唤醒都会进行一次自旋。
+自旋说白了就是一个死循环，首先检查前驱是否是首节点（判断是否是第二种情况），如果是就试图获取锁，获取失败就接着睡等待下次唤醒（等待下次自旋）。
+因此并不是只有第二个节点会自旋， 同步队列的所有节点都会自旋，毕竟存在被中断唤醒的可能。
+
+{% img /images/spin.png 400 600 spin %}
+
+**同步状态的获取与释放**
+同步状态获取释放相关的方法主要有两类：独占式和共享式。
+
+- 独占式:
+1. 模版方法：(AQS中写好的,可以翻看源码研读)
+```
+public final void acquire
+public final boolean release
+private Node addWaiter
+private Node enq
+final boolean acquiredQueued`
+```
+2. 需要自己重写的：
+```
+protected boolean tryAcquire
+protected boolean tryRelease
+```
 
 
+独占式的特点就是：
+`tyrAcquire`,`tryRelease`的返回值是`boolean`。
+因为同一时刻只能有一个线程占据，因此用`boolean`就能表达了。
+相当于资源数只有1，状态只有0,1两种。
+
+- 共享式
+{% img /images/shareandmutex.png 400 600 shareandmutex %}
+
+共享式的代码逻辑会复杂一些，如上图所示：
+1. 临界区里有共享锁时，只有共享请求能进入；
+2. 临界区里有独占锁时，谁都不能进。
+
+共享式的方法：
+1. 模版方法：
+```
+public final void acquiredShared
+private void doAcquiredShared
+public final boolean releaseShared
+```
+
+2. 自己重写的方法：
+```
+protected int tryAcquireShared
+protected int tryReleaseShared
+```
+
+
+共享式的特点就是:
+`tryAcquireShared`,`tryReleaseShared`返回值是`int`。
+因为共享式的资源数可能不为1，状态较多。
+`doAcquireShared`方法中判断是否还有资源，用`tryAcquireShared(arg)>=0`来判断，可知自己实现的时候，要注意让`tryAcquireShared`方法返回剩下的资源数。
+
+
+
+# 5.3 重入锁
+重入锁： 一个线程能否重复获得同一个锁。
+重入锁示例：
+1. `synchronized`临界区,同一个线程能够重复进入;
+2.  `ReentrantLock`锁，能够重复使用`lock.lock()`.
+
+不可重入锁示例:
+上文中自定义的锁`Mutex`。
 
 
 
