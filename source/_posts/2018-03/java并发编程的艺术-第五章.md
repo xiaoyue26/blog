@@ -1,5 +1,5 @@
 ---
-title: java并发编程的艺术-第五章
+title: java并发编程的艺术-第五章(1)
 date: 2018-03-21 21:45:20
 tags: 
 - java
@@ -489,18 +489,3 @@ protected int tryReleaseShared
 
 
 
-# 5.3 重入锁
-重入锁： 一个线程能否重复获得同一个锁。
-重入锁示例：
-1. `synchronized`临界区,同一个线程能够重复进入;
-2.  `ReentrantLock`锁，能够重复使用`lock.lock()`.
-
-不可重入锁示例:
-上文中自定义的锁`Mutex`。
-
-
-
-
-
-
--- to be continue
