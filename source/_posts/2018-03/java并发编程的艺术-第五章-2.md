@@ -106,8 +106,8 @@ jdk实现： `ReentrantReadWriteLock`
 2. `writeLock()`
 
  `ReentrantReadWriteLock`的api:
- 
- |主要Api|描述|
+
+|主要Api|描述|
 |:-: | -: | 
 |int getReadLockCount()| 读锁被获取的次数(pv). 不去重。
 |int getReadHoldCount()| 当前线程获取读锁次数(pv).不去重
