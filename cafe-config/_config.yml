@@ -77,7 +77,7 @@ show_count: true
 
 # 标签云TagClound
 # 如果启动，则标签云颜色为随机
-tagcloud_color: false
+tagcloud_color: true
 
 # MathJax Support
 # 设置enable属性为true即可开启mathjax
@@ -120,7 +120,7 @@ gitment:
   # client_secret: 97f37d5c27c4a511xx4fxx623d391c85cb97f8 
 
 ## disqus
-disqus_shortname: false
+disqus_shortname: xiaoyue26
 
 google_plus:
 fb_admins:
