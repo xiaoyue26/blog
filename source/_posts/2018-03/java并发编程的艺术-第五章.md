@@ -24,7 +24,7 @@ categories:
 （`Condition`使用`await()`，对飙的是原来的`obj.wait()`）
 
 示例代码：
-```
+```java
 Lock lock=new ReentrantLock();
 lock.lock();// 没获取到锁的话抛异常
 try{
@@ -65,7 +65,7 @@ finally{
 `Condition`接口对飙的是原来的`wait/notify`机制，新推出的是`await/signal`机制。
 `wait/notify`依赖`synchronized`获得锁，而`Condition`依赖`Lock`获得锁。
 原来的`wait/notify`:
-```
+```java
 // A:
 synchronize(obj){
     obj.wait();
@@ -76,7 +76,7 @@ synchronize(obj){
 }
 ```
 使用`Condition`的`await/signal`:
-```
+```java
 Lock lock=new ReentrantLock();
 Condition condition=lock.newCondition();
 
@@ -104,7 +104,7 @@ finally{
 `wait`只有一个等待队列，而由于一个`Lock`可以生成多个`Condition`，因此`await`可以有多个等待队列。
 
 **案例之有界队列**
-```
+```java
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -221,7 +221,7 @@ AQS在设计上是基于模版方法模式的抽象类。也就是说，我们�
 
 **案例之-独占锁**
 `Mutex`的实现：
-```
+```java
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
@@ -309,7 +309,7 @@ public class Mutex implements Lock {
 **案例之-TwinsLock**
 用AQS实现一个最多能被两个线程同时占据的锁。
 `TwinsLock`实现：
-```
+```java
 public class TwinsLock implements Lock {
 
     private static final class Sync extends AbstractQueuedSynchronizer {
@@ -441,7 +441,7 @@ JDK中将两个链表的节点的数据结构杂糅在了一起，大致如下�
 
 - 独占式:
 1. 模版方法：(AQS中写好的,可以翻看源码研读)
-```
+```java
 public final void acquire
 public final boolean release
 private Node addWaiter
@@ -449,7 +449,7 @@ private Node enq
 final boolean acquiredQueued`
 ```
 2. 需要自己重写的：
-```
+```java
 protected boolean tryAcquire
 protected boolean tryRelease
 ```
@@ -469,14 +469,14 @@ protected boolean tryRelease
 
 共享式的方法：
 1. 模版方法：
-```
+```java
 public final void acquiredShared
 private void doAcquiredShared
 public final boolean releaseShared
 ```
 
 2. 自己重写的方法：
-```
+```java
 protected int tryAcquireShared
 protected int tryReleaseShared
 ```

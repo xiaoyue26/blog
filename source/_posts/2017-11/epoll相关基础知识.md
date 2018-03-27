@@ -141,7 +141,7 @@ ET模式没有上述的第四步.
 
 
 **数据结构:**
-```
+```c
 typedef union epoll_data {
      void *ptr;
      int fd; 
@@ -155,13 +155,13 @@ struct epoll_event {
  };
 ```
 C库的API:
-```
+```c
 int epoll_create(int size); // size: 最大句柄数
 int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);  
 int epoll_wait(int epfd, struct epoll_event *events,int maxevents, int timeout);
 ```
 具体语义:
-```
+```c
 epoll_create: 让内核创建一个epoll item;
 epoll_ctl: 修改epoll item: 增加socket句柄,或删除socket句柄,注册回调事件;
 epoll_wait: 等待注册的事件发生. 

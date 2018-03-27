@@ -18,12 +18,12 @@ categories:
 
 ### STEP 1
 进入后台:
-```
+```sql
 show processlist
 ```
 发现Query很多,`show full processlist`找出查询语句,发现多表join的时候没有利用到索引.
 查询语句模式如下:
-```
+```sql
 explain
 select *
 from  a
@@ -36,7 +36,7 @@ where a.dt>='2017-12-01' and a.dt<='2017-12-07'
 and a.platform='xxx' ... 
 ```
 mysql没有通过语义上的相等,把加给a表的条件传递给b表,导致多表join的时候没有利用到索. 此时`explain`后得到的a表`type`是`range`而b表是`ALL`. 后续还有几个join也都是类似情况,因此把给它们分别都加上子查询:
-```
+```sql
 explain
 select ...
 from (SELECT * FROM aa
@@ -58,7 +58,7 @@ from (SELECT * FROM aa
 ```
 
 - `explain`查询计划中的`type`:
-```
+```sql
 const(system): 根据PRI或Unique key,只取出确定的(一行)数据,常量优化. 
 
 eq_ref: JOIN条件包括了所有索引,并且索引是Unique key. 
@@ -79,7 +79,7 @@ all: 扫全表
 
 此外, 索引对于数据类型敏感, 查询中存在字符串和date类型相等的时候, 无法利用索引,
 需要将date类型转成字符串.
-```
+```sql
 dt = date_format(date_sub(current_date, interval 1 day), '%Y-%m-%d')
 ```
 

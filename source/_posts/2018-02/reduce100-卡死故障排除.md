@@ -59,7 +59,7 @@ local=/ip4:24281 remote=/ip1:50010]. 485000 millis timeout left.
 ```
 
 查看DN的连接数,发现异乎寻常得高:
-```
+```shell
 netstat -n | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
 ```
 

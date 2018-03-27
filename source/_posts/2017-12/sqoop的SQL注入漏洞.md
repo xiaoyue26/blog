@@ -18,7 +18,7 @@ ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that 
 ```
 
 也就是说sqoop生成的查询语句错了,搜了一下源码没有发现哪里会生成
-```
+```sql
 select pg_sleep(3)
 ```
 这种语句,而且我们用的是mysql,按理说不应当生成pgsql.

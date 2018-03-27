@@ -38,7 +38,7 @@ categories:
 > hive不可以设置行分隔符,hive的行分隔符只能是'\n'.
 hive可以设置的分隔符如下:
 
-```
+```sql
 ROW FORMAT DELIMITED
   FIELDS TERMINATED BY '\t'
   COLLECTION ITEMS TERMINATED BY ','
@@ -47,13 +47,13 @@ ROW FORMAT DELIMITED
 这些也可以设置为`\0001`,`\0002`,`\0003`.
 
 由于hive不能自定义行分隔符,因此sqoop导入hive时只能指定行分隔符为`\n`,因此sqoop导入hive的时候需要过滤掉hive默认使用的分隔符,可以使用参数:
-```
+```sql
 --hive-drop-import-delims
 ```
 作用是把字符串类型的字段中的\r,\n,\001等字符丢弃. 
 这个参数可以与`--mysql-delimiters`同时使用.
 也可以使用
-```
+```sql
 --hive-delims-replacement
 ` `
 ```
@@ -96,7 +96,7 @@ hive这里解析的逻辑是,把
  
 2)
 一种只对这种情况有效的解决方案,使用参数`--enclosed-by <char>`
-```
+```sql
 --enclosed-by
 "'"
 ```
@@ -111,7 +111,7 @@ hive这里解析的逻辑是,把
 2.3)对于hive而言,出现单引号时,它会把这些单引号对内部的部分认为是一个整体,对这个整体内的逗号进行忽略. 但hive的bug之处在于,它遇到\'时候,也会试图去匹配下一个\'或'.
 
 3) 使用csv的opt:
-```
+```sql
 import
 -D
 mapreduce.map.speculative=false
@@ -141,7 +141,7 @@ updatedTime
 
 
 4)最安全的solution,不使用csv:
-```
+```sql
 import
 -D
 mapreduce.map.speculative=false
@@ -170,7 +170,7 @@ updatedTime
 ```
 
 对应的hive外部表参数:
-```
+```sql
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '\u0001'
 COLLECTION ITEMS TERMINATED BY '\u0002'
@@ -179,7 +179,7 @@ MAP KEYS TERMINATED BY '\u0003'
 
 
 ### csv外部表语句:
-```
+```sql
 drop table temp.feng_test1;
 create table temp.feng_test1
 (c1 string

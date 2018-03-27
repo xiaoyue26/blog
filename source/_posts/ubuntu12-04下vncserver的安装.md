@@ -9,21 +9,21 @@ categories:
 
 
 1. **安装：**
-```
+```shell
 sudo apt-get install vnc4server
 ```
 2. **启动：**
-```
+```shell
 vncserver :1
 ```
 **关闭：**
-```
+```shell
 vncserver -kill :1
 ```
 
 还需配置图形界面：
 配置`~/.vnc/xstartup`：
-```
+```shell
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
 # exec /etc/X11/xinit/xinitrc
@@ -40,7 +40,7 @@ $STARTUP
 
 **别漏了最后的$STARTUP。**
 完整配置如下:
-```
+```shell
 #!/bin/sh
 # Uncomment the following two lines for normal desktop:
 unset SESSION_MANAGER
@@ -61,13 +61,13 @@ $STARTUP
 
 然后再启动vncserver就可以远程用vncviewer登录访问图形界面了。
 **启动：**
-```
+```shell
 vncserver :1
 ```
 
 **关闭：**
 
-```
+```shell
 vncserver -kill :1
 ```
 

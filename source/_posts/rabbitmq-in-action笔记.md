@@ -67,7 +67,7 @@ binding:
 - header // 不实用,即将弃用
 
 默认`Exchange`名字为空字符串`""`,连接到所有队列.
-```
+```java
 private static final String DEFAULT_EXCHANGE = "";
 private static final String DEFAULT_ROUTING_KEY = "";
 ```

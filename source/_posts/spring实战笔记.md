@@ -18,7 +18,7 @@ categories:
 # AOP
 - 切面.
 > 声明切点,注入before,after事件,降低代码耦合.
-```
+```xml
 <aop:config>
     <aop:aspect ref="minstrel">
       <aop:pointcut id="embark"
@@ -78,7 +78,7 @@ AspectJ是AOP的一个实现,Spring借鉴了AspectJ.(有合作)
 > 将Pointcut和Advice两者组装起来。有了Advisor的信息，Spring就可以利用JDK或CGLib的动态代理技术采用统一的方式为目标Bean创建织入切面的代理对象了
 
 例子:
-```
+```xml
 <aop:config>
     <aop:aspect ref="minstrel">
       <aop:pointcut id="embark"
@@ -94,7 +94,7 @@ AspectJ是AOP的一个实现,Spring借鉴了AspectJ.(有合作)
 ```
 
 - spring支持的AspectJ切点表达式(挺多的记不住,就不列全了):
-```
+```java
 arg()
 this
 target
@@ -103,7 +103,7 @@ execution
 ```
 
 用切点表达式来选取某个方法示例:
-```
+```java
 execution(* concert.Performance.perform(..))
 // * :  返回任意类型
 // 方法所属的类是: concert.Performance
@@ -174,7 +174,7 @@ ant pattern,和普通的通配符有点不一样,是专门用于url的通配符:
 ```
 
 匹配上路径以后,配置能够做什么.
-```
+```java
 access("hasRole('READER')") 设置SpEL表达式为true时允许访问;
 anonymous()  允许匿名访问
 authenticated() 允许认证过的用户访问
@@ -198,7 +198,7 @@ access("hasRole('ROLE_READER' and hasIpAddress('192.168.1.2'))");
 ## Authentication与Authorization区别
 `Authentication`: 鉴权,用户是谁.
 `Authorization`: 授权,是否可以.
-```
+```java
 // 获得用户是谁: 如果没有鉴权就是null
 SecurityContextHolder.getContext().getAuthentication()
 // 获得用户的权限:
@@ -269,7 +269,7 @@ Spitter: 主题 // 还可以加Distinct
 
 
 2.`@Query`自定义查询
-```
+```java
 @Query("select username,password,fullname from Reader")
     List<Reader> findAllGmailReaders();
 ```
@@ -291,12 +291,14 @@ Spring就会混合自动生成的实现和自定义的实现.
 2. note4j 及其template
 3. redis 及其template
 依赖:
-```
+
+```groovy
 compile "redis.clients:jedis:2.9.0"
 compile 'org.springframework.boot:spring-boot-starter-data-redis'
 ```
 yaml配置:
-```
+
+```yaml
 spring:
   redis:
     host: localhost
@@ -304,7 +306,7 @@ spring:
     port: 6379
 ```
 配置:
-```
+```java
 @Bean
     public RedisTemplate<String, Product> redisTemplate(RedisConnectionFactory cf) {
         RedisTemplate<String, Product> redis = new RedisTemplate<>();
@@ -319,7 +321,7 @@ Spring Data Redis提供的序列化器:
 1. `RedisTemplate`会使用`JdkSerializationRedisSerializer`;
 2. `StringRedisTemplate`默认会使用`StringRedis-Serializer`;
 3. 可以在创建`RedisTemplate`的时候配置其他序列化器:
-```
+```java
  @Bean
     public RedisTemplate<String, Product> redisTemplate(RedisConnectionFactory cf) {
         RedisTemplate<String, Product> redis = new RedisTemplate<>();
@@ -334,7 +336,7 @@ Spring Data Redis提供的序列化器:
 - EhCache 跳过.
 1.声明缓存管理器
 - RedisCacheManager :单个缓存管理器
-```
+```java
 @Configuration
 @EnableCaching
 public class CachingConfig {
@@ -358,13 +360,13 @@ public class CachingConfig {
 ```
 
 `@CachePut`:
-```
+```java
 @CachePut(value="spittleCache", key="#result.id")
   Spittle save(Spittle spittle);
 ```
 
 - 条件缓存:
-```
+```java
 @Cacheable(value="spittleCache"
 unless="#result.message.contains('Nocache')"
 condition="#id >= 10"
@@ -373,13 +375,13 @@ Spittle findOne(Long id);
 ```
 
 - 移除缓存:
-```
+```java
 @CacheEvict("spittleCache")
 void remove(long spittleid);
 ```
 
 - 组合缓存操作:
-```
+```java
 @Caching(   // 增加id查找,email查找,username查找的缓存
         put = {  
                 @CachePut(value = "user", key = "#user.id"),  
@@ -391,7 +393,7 @@ public User save(User user) {...};
 ```
 
 - 自定义注解:
-```
+```java
 @Caching(  
         put = {  
                 @CachePut(value = "user", key = "#user.id"),  
@@ -412,7 +414,7 @@ public @interface UserSaveCache {
 3. 创建安全表达式计算器 //  ExpressionSecurityConfig
 详见源码chapter_14.
 配置上:
-```
+```java
 @EnableGlobalMethodSecurity(securedEnabled=true)
 public class SecuredConfig extends GlobalMethodSecurityConfiguration {
 
@@ -432,7 +434,7 @@ public class SecuredConfig extends GlobalMethodSecurityConfiguration {
 ```
 
 service:
-```
+```java
 @Secured({"ROLE_SPITTER", "ROLE_ADMIN"})
 ```
 
@@ -480,7 +482,7 @@ ByteArrayHttpMessageConverter
 ```
 
 - `@ResponseBody`: 发送数据时使用转换器; 配合`produces`
-```
+```java
 @RequestMapping(method=RequestMethod.GET, produces="application/json")
   public List<Spittle> spittles(
       @RequestParam(value="max", defaultValue=MAX_LONG_AS_STRING) long max,
@@ -489,7 +491,7 @@ ByteArrayHttpMessageConverter
   }
 ```
 - `@RequestBody`: 接受数据时使用转换器. 配合`consumes`
-```
+```java
 @RequestMapping(method=RequestMethod.POST, consumes="application/json")
   @ResponseStatus(HttpStatus.CREATED)
   public ResponseEntity<Spittle> saveSpittle(@RequestBody Spittle spittle, UriComponentsBuilder ucb) {
@@ -510,7 +512,7 @@ ByteArrayHttpMessageConverter
 
 - `@RestController`注解:
 为所有方法增加@ResponseBody.方法的输入参数增加@RequestBody.
-```
+```java
 @PathVariable long id
 // 用路径中的{id}注入id; 
 @RequestParam(value="max", defaultValue=MAX_LONG_AS_STRING) long max
@@ -609,7 +611,7 @@ STOMP: Simple Text Oriented Messaging Protocol
 
 # 第十九章 邮件
 用qq邮箱代发即可,配置依赖以后,用springboot能自动获得相关bean,调用即可.不使用ssl的话需要配置:
-```
+```yaml
 spring.mail.username: xxx@qq.com
 spring.mail.password: password
 spring.mail.port: 25 # SSL  465
@@ -624,7 +626,7 @@ spring.mail.properties.mail.smtp.auth: true
 
 # 第二十一章 Springboot
 起步依赖具体引入了什么:
-```
+```yaml
 spring-boot-starter-actuator=>
  spring-boot-starter
 ,spring-boot-actuator

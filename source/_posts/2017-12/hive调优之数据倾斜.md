@@ -21,17 +21,17 @@ http://xxx:8088/proxy/application_1472710912354_3070684/mapreduce/tasks/job_1472
 
 ## 1. 加内存
 最简单粗暴就是给reduce加内存了. 让它别外排:
-```
+```sql
 set mapreduce.reduce.memory.mb=10240;
 ```
 类似的,如果mapper内存不够,可以减小每个mapper处理的数据量,增大mapper的数量:
-```
+```sql
 set mapreduce.input.fileinputformat.split.maxsize=64000000;
 ```
 
 ## 2. 倾斜key单独处理
 第二种手段也比较简单, 就是把出现倾斜的key找出来,假如很少的话,可以把它们摘出来,单独处理(或遗弃). 开启hive自动消除数据倾斜:(效果有效)
-```
+```sql
 set hive.optimize.skewjoin = true;
 set hive.skewjoin.key=1000;
 set hive.groupby.skewindata=true;
@@ -45,7 +45,7 @@ set hive.groupby.mapaggr.checkinterval=100;
 以某次需求为例,需要求各个省市区维度下的丢包率\延迟的50,90,99分位数.数据量每天200G. 分位数计算极其耗时, 尤其是计算周统计数据时, 数据量达到TB级. 
 
 在使用了前一篇优化笔记手段以及上述手段后,依然耗时4小时.原来查询最耗时的部分如下:
-```
+```sql
 select  es
        ,province
        ,city
@@ -65,7 +65,7 @@ GROUP BY es,province,ipOprator with cube
 从头开始扫一遍上一步的List, 根据计数器的值总和,分位数,定位到对应的分位数,返回.
 ```
 将其重写为可以进行局部聚合, 从而略去第一步:
-```
+```sql
 select  es
        ,province
        ,city

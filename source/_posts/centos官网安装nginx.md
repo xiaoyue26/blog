@@ -9,7 +9,7 @@ categories:
 
 `vi /etc/yum.repos.d/nginx.repo`
 加入如下内容：
-```
+```yaml
 [nginx]
 name=nginx repo 
 baseurl=http://nginx.org/packages/centos/6/$basearch/

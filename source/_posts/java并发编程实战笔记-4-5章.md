@@ -21,7 +21,7 @@ categories:
 
 # 监视器模式
 通过一个私有的锁保护状态:
-```
+```java
 public class PrivateLock {
     private final Object myLock=new Object();
     @GuardedBy("myLock")
@@ -37,7 +37,7 @@ public class PrivateLock {
 # 对象的组合
 1. 一个没有成员的对象A,无状态,因此是线程安全的;
 2. 当A中增加一个成员,如:
-```
+```java
 public class A{
 private final AtomicLong aa=new AtomicLong(0);
 }
@@ -109,7 +109,7 @@ hashCode,equals,ContainsAll等等.
 当已经是最外层的时候,(在Runnable这一层了)
 就不能往外抛了,再抛线程就挂了.
 这个时候保持中断状态就好:(恢复中断)
-```
+```java
 catch(InterruptedException e ){
 
 Thread.currentThread().interrupt();
@@ -140,7 +140,7 @@ final CountDownLatch endGate=new CountDownLatch(nThreads);
 
 
 - 完整代码
-```
+```java
 public class TestLatch {
 
     public long timeTasks(int nThreads, final Runnable task) throws InterruptedException {
@@ -225,7 +225,7 @@ public class TestLatch {
 
 # 疑问:
 1. Collections.unmodifiableMap(xxx)
-```
+```java
 final xxx;//引用是不可变的,如果是基本类型,就是值.
 final xxx = Collections.unmodifiableMap(xxx);
 /**不但引用是不可变的,第一级寻址对象也是不可更改的.

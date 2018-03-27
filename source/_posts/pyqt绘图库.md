@@ -30,13 +30,13 @@ sudo pip install cssselect
 
 pycharm下配置Pyqt4:
 1. 
-```
+```shell
 sudo apt-get install python-pip
 sudo apt-get install build-essential  
 ```
 
 2. pyqt4:
-```
+```shell
 sudo apt-get install libxext6 libxext-dev libqt4-dev libqt4-gui libqt4-sql qt4-dev-tools qt4-doc qt4-designer qt4-qtconfig "python-qt4-*" python-qt4
 ```
 
@@ -54,7 +54,7 @@ bff9VcTSJk7sRDLqKRVz1XGKbMqw3G
 脚本默认启动目录：`/usr/local/bin/charm`
 
 4.
-```
+```shell
 apt-get install python-lxml
 pip install lxml
 apt-get install libffi-dev
@@ -65,7 +65,7 @@ pip install pygal
 ```
 5.`pycharm+pyqt4`配置：
 http://www.jb51.net/softjc/127737.html
-```
+```shell
 sudo apt-get install qdevelop 
 sudo apt-get install libqwt5-qt4 libqwt5-qt4-dev
 sudo apt-get install libqt4-sql-mysql
@@ -81,7 +81,7 @@ http://www.riverbankcomputing.com/software/sip/download
 检查`sip -V`是否成功。
 
 7.用ubuntu的软件中心安装软件cx_Freeze失败所以：
-```
+```shell
 sudo pip install cx_Freeze
 ```
 8. pycharm连接qtdesigner:
@@ -93,11 +93,11 @@ Program选择qtdesigner的运行路径；
 
 9. pycharm连接pyuic:
 先安装：
-```
+```shell
 sudo apt-get install pyqt4-dev-tools
 ```
 测试pyuic命令能否运行。
-```
+```shell
 pyuic
 ```
 pycharm中：
@@ -112,7 +112,7 @@ Program输入：
 
 
 示例命令:
-```
+```shell
 pyuic4 -x untitled.ui -o untitled.py
 ```
 
@@ -121,7 +121,7 @@ pyuic4 -x untitled.ui -o untitled.py
 
 1.第一种pygal:
 http://pygal.org/
-```
+```shell
 apt-get install python-lxml
 pip install lxml
 pip install cairosvg
@@ -131,7 +131,7 @@ pip install pygal
 ```
 
 2. 第二种matplotlib:
-```
+```shell
 apt-get install python-numpy
 apt-get install python-scipy
 apt-get install libpng-dev
@@ -140,7 +140,7 @@ pip install matplotlib
 ```
 
 3. 第三种pycha:
-```
+```shell
 pip install pycha
 ```
 

@@ -7,7 +7,7 @@ categories:
 ---
 
 语法:
-```
+```shell
 Usage: sed [OPTION]... {script-only-if-no-other-script} [input-file]...
 ```
 
@@ -23,7 +23,7 @@ s: 取代
 
 
 示例1:
-```
+```shell
 # 在第四行后添加一行(内容为helloWorld),结果打印到console:
 sed -e 4a\helloWorld log.txt
 # 假如文件根本没有第四行,则不会添加.
@@ -31,7 +31,7 @@ sed -e 4a\helloWorld log.txt
 
 
 示例2: (-e可以省略)
-```
+```shell
 # 把文件的内容加上行号输出,并且删除第2,3行.
 nl log.txt | sed '2,3d'
 

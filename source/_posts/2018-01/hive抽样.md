@@ -11,25 +11,25 @@ categories:
 
 有时候需要快速估计值,可以借助抽样.Hive中抽样的方法:
 # 抽取指定比例(如10%):
-```
+```sql
 SELECT * FROM t_name TABLESAMPLE(0.1 PERCENT) s
 ```
 # 抽取指定大小(如30M):
-```
+```sql
 SELECT * FROM t_name TABLESAMPLE (30M)
 ```
 # 块抽样,每个InputSplit抽取10行:
-```
+```sql
 SELECT * FROM t_name TABLESAMPLE(10 ROWS) s
 ```
 # 桶抽样:(要求原表是分桶表)
-```
+```sql
 SELECT * FROM t_name_2 TABLESAMPLE(BUCKET 1 OUT OF 10 ON pcid);
 ```
 # 一致性抽样:
 上述抽样每次运行都是随机选取,所以结果每次都不同. 
 如果要求每次抽样的结果是一样的,可以使用随机数发生器的伪随机性,进行系统抽样:
-```
+```sql
 SELECT * FROM t_name
 WHERE rand(unix_timestamp(concat(fdate,' ',ftime)))<=0.1 -- 抽取10%
 ```

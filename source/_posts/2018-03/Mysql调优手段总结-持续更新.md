@@ -91,7 +91,7 @@ date/time/datetime 好于 char.
 5. 如果是日志系统，开启异步写入数据的参数；
 6. 检查关联表的顺序;
 - 相关命令
-```
+```sql
 explain extended <sql>;
 show warnings;
 -- 可以得到重构出的查询。
@@ -106,7 +106,7 @@ show warnings;
 ### 索引相关
 1. 范围查询转化成枚举，充分利用索引；
 如索引为(dt,city)，查询为：
-```
+```sql
 select dt,city from t
 where dt>='2018-01-01' and dt<='2018-01-02'
 and city='beijing'
@@ -135,7 +135,7 @@ all: 扫全表
 ```
 
 4. 检查索引字段是否正确转换了类型:
-```
+```sql
 dt = date_format(date_sub(current_date, interval 1 day), '%Y-%m-%d')
 ```
 

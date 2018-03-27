@@ -9,7 +9,7 @@ categories:
 ---
 
 语法:
-```
+```shell
 awk [参数] '具体命令' var=xxx file(s)
 # 或
 awk [参数] -f 具体命令所在文件 var=xxx file(s)

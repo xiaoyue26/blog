@@ -21,7 +21,7 @@ Mysql生成有序结果的两种方法: (详见第7章)
 **正确示例:**
 **索引为(a,b,c)**
 示例1:
-```
+```sql
 select a,b,c from t
 where a='xxx' ORDER BY b,c
 ```
@@ -29,7 +29,7 @@ where a='xxx' ORDER BY b,c
 
 **错误示例**
 示例2:
-```
+```sql
 select a,b,c from t
 where a='xxx' order by b DESC,c ASC.
 ```
@@ -37,7 +37,7 @@ where a='xxx' order by b DESC,c ASC.
 如果需要按不同方向排序, 可以通过存储这列的相反数或者反转值, 满足这种需求.
 
 示例3:
-```
+```sql
 select a,b,c from t
 where a>'xxx' order by b,c
 ```
@@ -131,7 +131,7 @@ MySQL允许在列上创建多个索引.
 服务器端过滤掉行后,释放没用到的行锁.
 
 - 示例
-```
+```sql
 Set autoCommit=0;-- 默认是每句都是一个事务
 -- 这里改成显式提交。
 BEGIN；
@@ -180,7 +180,7 @@ Innodb不同索引对应的锁：
 
 ### 5.4.3 优化排序
 - 示例1：
-```
+```sql
 select * from profiles
 where sex='M' 
 order by rating limit 10
@@ -188,7 +188,7 @@ order by rating limit 10
 可以考虑建立索引(sex,rating)来优化查询。
 
 - 示例2：
-```
+```sql
 select * from profiles
 where sex='M'
 order by rating limit 10000,10
@@ -201,7 +201,7 @@ Mysql需要花费大量的时间扫描需要丢弃的数据。
 2. 覆盖索引+延迟关联。
 
 方案2的代码如下：
-```
+```sql
 select * from profiles AS　ａ　
 join
     (select id from profiles
@@ -219,7 +219,7 @@ on a.id=b.id
 
 ### 5.5.1 找到并修复损坏的表
 - 相关命令：
-```
+```sql
 -- 检查：
 Check Table xxx
 -- 修复方法1：
@@ -231,7 +231,7 @@ Alter table innodb_tbl engine=innodb;
 
 ### 5.5.2 维护索引信息
 - 相关命令：
-```
+```sql
 -- 重新生成统计信息：
 Analyze Table xxx
 ```
@@ -251,7 +251,7 @@ Innodb引擎则不在磁盘存储索引统计信息，而是通过随机的索�
 3. 剩余空间碎片： 数据页中有大量空余空间。
 
 相关命令：
-```
+```sql
 Optimize table xxx
 -- 或者可以重建表/索引，也可以消除碎片。
 ```

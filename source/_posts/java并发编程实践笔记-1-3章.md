@@ -23,7 +23,7 @@ tips:
   静态方法synchronized: 对Class对象加锁.
 
 同步块:
-```
+```java
 synchronized(this){
 //do something
 }
@@ -69,7 +69,7 @@ synchronized(this){
 ;在client模式下则不会有这种优化.
 
 示例代码:
-```
+```java
 boolean otherDone;//此处应该volatile
 while(!otherDone){
 //sleep
@@ -108,7 +108,7 @@ while(!otherDone){
 4. 把对象引用存放到一个由锁保护的域中.(如放入同步容器中,包括HashTable,Vector,sychronizedMap,synchronizedMap,concurrentMap,CopyOnWriteArrayList,BlockingQueue,ConcurrentLinkedQueue).
 
 - 方法1: 静态初始化函数
-```
+```java
 public static Holder holder=new Holder(42);
 ```
 

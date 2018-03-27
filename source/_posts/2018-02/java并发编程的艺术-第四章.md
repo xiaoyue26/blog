@@ -22,7 +22,7 @@ JAVA程序天生多线程: 执行`main`方法的是一个名字为`main`的线�
 4. `main`: `main`线程,用户程序入口.
 
 要查看上述线程,可以用JMX打印出来:
-```
+```java
 ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 ThreadInfo[] threadInfos = threadMXBean.dumpAllThreads(false, false);
 for (ThreadInfo ti : threadInfos) {
@@ -78,14 +78,14 @@ Time_Waiting| 超时等待. 比Waiting多一个超时返回功能.(`Lock`类)
 ### Runnable与其他状态的转化
 **1.Waiting**
 `Runnable`=>`Waiting`: // 主动等待某个对象
-```
+```java
 obj.wait()
 obj.join()
 LockSupport.park()
 ```
 
 `Waiting`=>`Runnable`: // 被别人中断或通知
-```
+```java
 obj.notify() // 必须在wait之后调用才有效
 obj.notifyAll()
 LockSupport.unpark(Thread) // 在park之前调用也有效.(会累计1个,但不会累计2个)
@@ -93,7 +93,7 @@ LockSupport.unpark(Thread) // 在park之前调用也有效.(会累计1个,但不
 
 **2.Time_Waiting**
 `Runnable`=>`Time_Waiting`: // 基本就是比Waiting多个时长
-```
+```java
 obj.wait(long)
 Thread.join(long)
 LockSupport.parkNanos(long)
@@ -102,7 +102,7 @@ Thread.sleep(long)
 ```
 
 `Time_Waiting`=>`Runnable`: // 与Waiting完全一样
-```
+```java
 obj.notify()
 obj.notifyAll()
 LockSupport.unpark(Thread)
@@ -110,11 +110,11 @@ LockSupport.unpark(Thread)
 
 **3.Blocked**
 `Runnable`=>`Blocked`:
-```
+```java
 synchronized(xx)// 没获取到锁
 ```
 `Runnable`=>`Blocked`:
-```
+```java
 synchronized(xx)// 获取到了锁
 ```
 
@@ -125,7 +125,7 @@ synchronized(xx)// 获取到了锁
 
 
 设定线程为`Daemon`的方法:
-```
+```java
 thread.setDaemon(true);
 ```
 
@@ -152,7 +152,7 @@ thread.setDaemon(true);
 - `false`(初始值): 没中断,或已经运行结束.
 
 容易混淆的几个方法:
-```
+```java
 obj.interrupt();// 中断某线程.把它的中断标志改为`true`.
 obj.isInterrupted(); // 查询是否中断
 Thread.interrupted();// 把当前线程的中断标志重置为`false`. 
@@ -168,7 +168,7 @@ Thread.interrupted();// 把当前线程的中断标志重置为`false`.
 ### 4.2.5 安全的终止/暂停的方法
 使用中断.
 例如:
-```
+```java
 public class TestCancel2 {
     class PrimeProducer extends Thread {
         private final BlockingQueue<BigInteger> queue;
@@ -250,7 +250,7 @@ LoadStore屏障
 ```
 
 用`volatile`模拟锁,辅助线程同步(通信)：
-```
+```java
 volatile boolean flag=false;
 //线程A:
 a=10;
@@ -280,7 +280,7 @@ break;
 
 相关字节码实验：
 1. 源代码：
-```
+```java
 public class SynchronizedTest{
     public static void main(String[]args){
         synchronized(SynchronizedTest.class){
@@ -295,11 +295,11 @@ public class SynchronizedTest{
 ```
 
 2. **反编译class文件**
-```
+```shell
 javap -v <xxx.class>
 ```
 结果大致如下:
-```
+```java
 // 省略几行
 Constant pool:
    // 省略此处的#1~#27常量.(包括符号引用)
@@ -349,7 +349,7 @@ SourceFile: "SynchronizedTest.java"
 
 
 示例代码:
-```
+```java
 static Object obj=new Object();
 // A:
 synchronized(obj){
@@ -370,7 +370,7 @@ synchronized(obj){
 2. 面向字符：`PipedReader`/`PipedWriter`。
 
 示例代码：
-```
+```java
 PipedWriter out=new PipedWriter();
 PipedReader in=new PipedReader();
 out.connect(in);// 注意这里，需要连接，否则出错
@@ -389,7 +389,7 @@ finally{
 ### threadA.join()用于线程同步
 假如threadB中调用`threadA.join()`，意思就是等待`threadA`线程对象退出。
 本质上`join`是一个`sychronized`方法，调用了线程对象的`wait`方法：
-```
+```java
 public final synchronized void join(long millis)
     throws InterruptedException {
         long base = System.currentTimeMillis();

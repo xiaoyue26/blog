@@ -43,19 +43,19 @@ record: {"user":"-","method":"GET","code":200,"size":777,"host":"192.168.0.1","p
 ```
 ## filter:
 - 过滤器:
-```
+```xml
 <filter test.cycle>
   @type grep
   exclude1 action logout
 </filter>
 ```
 这个filter会过滤掉这种输入:
-```
+```shell
 curl -i -X POST -d 'json={"action":"logout","user":2}' http://localhost:8888/test.cycle
 ```
 
 ## label
-```
+```xml
 <source>
   @type http
   bind 0.0.0.0
@@ -86,7 +86,8 @@ http: http
 
 
 - `e.g.`:
-```
+
+```xml
 # Receive events from 24224/tcp
 # This is used by log forwarding and the fluent-cat command
 <source>

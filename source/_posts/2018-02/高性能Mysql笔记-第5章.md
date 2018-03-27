@@ -123,7 +123,7 @@ ScaleDB: Patricia tries
 独立列： 索引列不能是表达式的一部分，也不能是函数的参数。
 此外，如果数据类型不匹配，相当于隐式调用了类型转换函数，也是无法使用到索引的。
 
-```
+```sql
 错误示例：（表达式）
 select * from xxx where id+1=5;
 正确示例：(移到等号另一边)
@@ -169,7 +169,7 @@ explain计划里的索引type是`index_merge`.
 3. 上述两种情况的组合。
 
 **OR**
-```
+```sql
 select * from xxx where actorid=1 or filmid=2
 转化为：
 select * from xxx where actorid=1
@@ -279,7 +279,7 @@ explain时，如果`Extra`列的值为`Using index`，说明利用了覆盖索�
 
 **覆盖索引相关优化:**
 1. 索引为: (actor,title)
-```
+```sql
 select * from products
 where actor='SEAN CARREY' 
  AND title like '%APOLO%'
@@ -293,7 +293,7 @@ where actor='SEAN CARREY'
 (2) 使用(1)中的主键地址,回表(读磁盘)取出相应的数据行. // 第2次磁盘IO
 
 2. 索引为: (actor,title,pro_id)
-```
+```sql
 select *
 FROM product
 JOIN (

@@ -118,7 +118,7 @@ Store1;StoreLoad;Load2
 自增: 相当于先读后写两个操作, 不具有原子性. 
 
 用`volatile`代替锁.(从内存语义上说,由于它与锁有相同内存效果,可以实现)
-```
+```java
 volatile boolean flag=false;
 A:
 a=10;
@@ -172,7 +172,7 @@ Sync
 AQS(AbstrackQueuedSynchronizer)
 ```
 其中AQS里头有个`volatile`变量:
-```
+```java
 private volatile int state;
 ```
 锁的内存语义基本就靠这个`volatile`变量和CAS操作.
@@ -221,7 +221,7 @@ StoreStore屏障 // 先把上述写(Store)的结果刷新到内存. 再写引用
 ```
 
 示例代码:
-```
+```java
 FinalObj obj=inputObj; // 别的线程负责创建的对象
 int a=obj.i;// 如果i是final的,那一定能读到初始化以后的值; 
 int b=obj.j;// 如果j不是final的,那可能读到还没初始化的值.
@@ -234,7 +234,7 @@ final域的读
 ```
 大多数cpu不需要这个规则也能正确进行final读,但还是有少部分cpu会无视间接依赖,因此需要这个规则.(需要加入这个屏障)
 示例代码:
-```
+```java
 FinalObj obj=inputObj; // 别的线程负责创建的对象
 int a=obj.i;// 如果i是final的,那会等obj读到对象引用后再去读i;
 int b=obj.j;// 如果j不是final的,那可能没等到读到对象obj,就直接取读j了,读取错误.
@@ -296,7 +296,7 @@ JVM对于每一个类或接口都有唯一的初始化锁`LC`.(放在`Class`对�
 6. 设置state=`initializated`. // 初始化结束. 唤醒等待的线程.
 
 基于上述过程的单例如下:
-```
+```java
 public class A{ 
     private static class B {
         public static C c=New C();
@@ -314,7 +314,7 @@ C c=A.getC(); // 导致A被初始化.
 
 之所以使用内部类B: 想达到懒汉的目的. 
 如果不用内部类, 可以这么写:
-```
+```java
 public class A{ 
     private final static C c=new C();
     private A(){}

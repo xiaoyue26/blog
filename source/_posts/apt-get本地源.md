@@ -9,7 +9,7 @@ categories:
 >上次安装ambari，由于网速问题下载包下载了好久。如果反复这样的话太浪费时间了，又找不到能用的国内镜像源，决定自己建一个本地源。
 
 首先有一台服务器用官方的`ambari.list`源
-```
+```shell
 sudo apt-get install ambari-server
 sudo apt-get install ambari-agent
 ```
@@ -17,7 +17,7 @@ sudo apt-get install ambari-agent
 接下来要做的工作就是想要复用这些文件。
 
 1.`apt-get`安装的软件都保存在`/var/cache/apt/archives/`目录下，所以先把它们拷贝到别的目录下：
-```
+```shell
 sudo mkdir ~/data/soft -p 
 sudo cp -p /var/cache/apt/archives/*.deb  ~/data/soft/
 cd ~/data/soft/
@@ -26,15 +26,15 @@ chown -R am-server ~/data/
 chgrp -R am-server ~/data/
 ```
 2.安装一下依赖扫描工具：
-```
+```shell
 sudo apt-get install  dpkg-dev -y
 ```
 3.生成`Packages.gz`
-```
+```shell
 dpkg-scanpackages soft/ |gzip > soft/Packages.gz
 ```
 4.nginx对于静态资源并发比较好：
-```
+```shell
 # 安装nginx:
 sudo apt-get install nginx
 # 配置一下nginx的启动用户：
@@ -77,7 +77,7 @@ service nginx restart
 [http://10.2.14.120/soft][2]
 
 如果出现问题的话，可以通过检查两个log文件寻找原因：
-```
+```shell
 # 访问日志：
 cat /var/log/nginx/access.log;
 # 错误日志：

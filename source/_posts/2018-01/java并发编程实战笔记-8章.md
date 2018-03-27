@@ -56,8 +56,8 @@ newSingleThreadExecutor: 无界等待队列 LinkedBlockingQueue
 
 # 8.5 递归算法的并行化
 首先循环可以并行化:
-```
-forl(final Ele e: eles){
+```java
+for(final Ele e: eles){
     exec.execute(
     new Runnable(){
       public void run(){process(e);}
@@ -66,7 +66,7 @@ forl(final Ele e: eles){
 }
 ```
 递归也一样, 遍历依然是递归的, 但把每一个节点的计算收集到线程池中,异步计算.
-```
+```java
 dfs(node,exec,results){
  exec.execute(...);
  dfs(node.children());

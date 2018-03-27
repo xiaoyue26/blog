@@ -18,7 +18,7 @@ spark-sql能正常处理.
 
 子查询中重命名列时,如果和原有表中某列名相同,并且where条件中有那一列,取原有表的列值.
 构造测试用例:
-```
+```sql
 SELECT * FROM
 (SELECT 123 as paperid
 FROM  temp.feng_test1
@@ -27,14 +27,14 @@ where paperid=70455
 ```
 上述查询的结果是70455,而不是我们想象中的123. 
 而这个查询:
-```
+```sql
 SELECT * FROM
 (SELECT 123 as paperid
 FROM  temp.feng_test1
 )AS a
 ```
 或这个查询:
-```
+```sql
 SELECT * FROM
 (SELECT 123 as paperid
 FROM  (select 70455 as paperid) as t 
@@ -52,7 +52,7 @@ GROUP BY,自定义UDF和自定义Serde都能正常独立工作.
 1.表定义为string,而自定义的serde类放入了long对象;(bug)
 2.自定义UDF使用简便写法(继承UDF,复杂写法为继承GenericUDF);(正常行为)
 3.运行如下语句:
-```
+```sql
 select xx
 from `1中serde的表`
 group by `2中udf`
@@ -70,7 +70,7 @@ GROUP BY 时,如果有涉及引用的重复列, 如构造用例中的alist[0],�
 而不是我们想象中的: `1,1,3333`.
 
 构造用例如下:
-```
+```sql
 SELECT aid,bid,mistake
 FROM
       (SELECT 1 as aid
@@ -98,14 +98,14 @@ spark-sql能正常处理.
 假设tp是一个字符串类型,强行转换成int类型时,如果发生数据溢出,比如值是13位时间戳(1514285700375),排序行为将不可预测.既不是降序也不是升序.
 
 构造错误样例如下:
-```
+```sql
 select userid,phaseid,tp
 ,row_number()over(partition by userid order by int(tp)) as rank
 from xxxx
 ```
 
 正确样例:
-```
+```sql
 select userid,phaseid,tp
 ,row_number()over(partition by userid order by bigint(tp)) as rank
 from xxxx
@@ -118,7 +118,7 @@ spark-sql能正确处理.
 hive中对数组进行排序后,会改变原有数组.(会在原有数组基础上排序)
 spark-sql则会返回一个深拷贝,不改变原有数组.
 
-```
+```sql
 select alist
       ,sort_array(alist) as alist2
 FROM

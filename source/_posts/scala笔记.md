@@ -15,7 +15,7 @@ http://blog.csdn.net/bluishglc/article/details/55668192
 > 在Scala里所有以“:”结尾的运算符是右关联的，其他的运算符都是左关联的
 
 # 数据类型
-```
+```scala
 // Byte,Int,Short,Long等略.
 Unit : 表示void. 表示无值，和其他语言中void等同。用作不返回任何结果的方法的结果类型。Unit只有一个实例值，写成()。
 

@@ -33,7 +33,7 @@ Mysql查询10020条记录，然后返回最后20条。前面1W条都被丢弃。
 - 方案3（记录上次分页id）
 这个方案在多次顺序分页的时候性能很好。
 比如上次分页查询到了id为10240的地方，记录这个值（可以在应用层），然后下次的查询就可以是:
-```
+```sql
 select * from t
 where id>10240
 limit 20
@@ -41,7 +41,7 @@ limit 20
 
 ## 6.7.6 SQL_CALC_FOUND_ROWS相关
 使用limit的时候，如果加上hint:
-```
+```sql
 SQL_CALC_FOUND_ROWS
 ```
 就可以获得limit之前结果集的行数。
@@ -70,7 +70,7 @@ Mysql扫描整个结果集，获得行数。
 
 ## 6.7.9 用户自定义变量
 - 示例:
-```
+```sql
 -- 定义：
 set @one :=1;
 set @min_actor := (select min(id) from actor); -- 赋值运算优先级很低，所以右边一般都要括号。
@@ -94,7 +94,7 @@ where col <= @last_week;
 
 ### 优化排名语句
 实现行号功能:
-```
+```sql
 set @rownum:=0;
 select id,@rownum := @rownum+1 as rownum
 from actor limit 3;
@@ -106,13 +106,13 @@ rownum: 1 2 3
 
 ### 查询并且更新数据
 原查询：（2条语句）
-```
+```sql
 update t set lastUpdated=now() 
 where id=1;
 select lastUpdated from t where id=1;
 ```
 改写后：(2条语句)
-```
+```sql
 update t set lastUpdated=now() 
 where id=1 and @now:= now();
 
@@ -121,7 +121,7 @@ select @now; -- 无需访问数据表
 
 ### 统计更新和插入的数量
 - 示例：
-```
+```sql
 insert into t (c1,c2) values
 (4,4)
 ,(2,1)
@@ -147,7 +147,7 @@ select @x;
 对于非索引列，它产生排他表锁。
 
 相关函数：
-```
+```sql
 select connection_id();
 -- 返回当前连接的id
 ```
@@ -160,7 +160,7 @@ select connection_id();
 - ts
 
 错误示例：
-```
+```sql
 Begin;
 select id from unsent emails
 where owner=0 and status='未发送'
@@ -176,7 +176,7 @@ Commit;
 select和update之间的间隙时间内，所有相同的查询会阻塞。（所有线程全都在竞争1个排他锁）
 
 改进后：
-```
+```sql
 set autocommit=1;
 commit;
 update unset_emails
@@ -215,7 +215,7 @@ and status='正在发送';
 
 
 A点和B点之间的距离计算公式`CAL`:
-```
+```sql
 Acos(
     cos(latA)*cos(latB)*cos(lonA-lonB)
   +sin(latA)*sin(latB)
@@ -223,7 +223,7 @@ Acos(
 ```
 
 **原查询：**
-```
+```sql
 select * from locations
 where 地球的半径* CAL <= 100;
 ```
@@ -232,7 +232,7 @@ where 地球的半径* CAL <= 100;
 优化方法：降低精度；修改上述的椭圆计算公式，近似成立方体公式。
 
 **- 优化后：**
-```
+```sql
 select * from locations
 where lat between 38.03-degrees(0.0253) and 38.03 + degree(0.0253)
 and lon between -78.48 - degrees(0.0253) and -78.48 + degrees(0.0253);
@@ -247,7 +247,7 @@ and lon between -78.48 - degrees(0.0253) and -78.48 + degrees(0.0253);
 - Key(Lon_floor,Lat_floor)
 
 **- 进一步优化：**
-```
+```sql
 select * from locations
 where lat between 38.03-degrees(0.0253) and 38.03 + degree(0.0253)
 and lon between -78.48 - degrees(0.0253) and -78.48 + degrees(0.0253)

@@ -227,7 +227,7 @@ Mysql并不原生支持,需要插件(FlexViews).
 
 ## 4.4.2 计数器表
 100个槽的计数器表:(预先插入100个0)
-```
+```sql
 create table hit_counter(
  slot tinyint unsigned not null primary key,
  cnt int unsigned not null
@@ -235,7 +235,7 @@ create table hit_counter(
 ```
 每次更新计数器可以随机选一个slot进行,这样可以有更高的并发性能.
 查询时只需要聚合一下结果就好:
-```
+```sql
 select sum(cnt)
 ```
 
@@ -257,13 +257,13 @@ Innodb的优化: 通过排序来建立索引.使建索引更快并有一个紧�
 - 更改或删除一个列的默认值.
 
 方法1: // 重建全表// 可以通过Show Status查到.
-```
+```sql
 Alter table xxx
 MODIFY COLUMN duration tinyint(3) not null default 5;
 ```
 
 方法2:// 直接更改元数据(`.frm`文件).
-```
+```sql
 Alter table xxx
 Alter Column duration Set Default 5;
 ```
@@ -271,7 +271,7 @@ Alter Column duration Set Default 5;
 修改列的方法包括: Alter Column,Modify Column,Change Column.
 
 - `ALter Column`: 只能修改列的默认值.直接修改元数据,非常快.
-```
+```sql
 alter table film alter column rental_duration set default 5;  
 alter table film alter column rental_duration drop default;
 ```
@@ -317,14 +317,14 @@ alter table film alter column rental_duration drop default;
 # 第二章 Benchmark
 # 第三章 服务器性能剖析
 查看某条查询执行的时间分布:
-```
+```sql
 set profiling=1;
 -- select * from xxx ;
 show profiles;
 show profile for query 1;
 ```
 查看某查询的执行计划:
-```
+```sql
 explain select xxx;
 ```
 

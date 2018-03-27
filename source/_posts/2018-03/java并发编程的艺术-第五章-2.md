@@ -116,7 +116,7 @@ jdk实现： `ReentrantReadWriteLock`
  
 **案例之Cache**
 `ReentrantReadWriteLock`的使用示例，实现一个`cache`:
-```
+```java
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -172,7 +172,7 @@ public class Cache {
 2. 写锁的获取与释放：
 写锁获取： S=0(c=0)，没有人获取写锁，也没人获取读锁。
 由`exclusiveCount`函数获取写状态。
-```
+```java
 @ReservedStackAccess
 protected final boolean tryAcquire(int acquires) {
     Thread current = Thread.currentThread();
@@ -211,7 +211,7 @@ protected final boolean tryRelease(int releases) {
 
 3. 读锁的获取与释放
 读锁获取： 没有人占据写锁。
-```
+```java
 @ReservedStackAccess
 protected final int tryAcquireShared(int unused) {
     Thread current = Thread.currentThread();
@@ -285,7 +285,7 @@ protected final boolean tryReleaseShared(int unused) {
 4. 释放写锁;
 5. 读数据+do something;
 6. 释放读锁。
-```
+```java
 // 锁降级案例
     public void processData() {
         r.lock();
@@ -317,7 +317,7 @@ protected final boolean tryReleaseShared(int unused) {
 
 # 5.5 LockSupport工具
 回顾前文中的实现层次，自顶向下：
-```
+```java
 1. Lock/Condition接口
 2. AQS
 3. volatile/CAS/LockSupport
@@ -325,14 +325,14 @@ protected final boolean tryReleaseShared(int unused) {
 
 其中AQS中除了使用`volatile`变量与`CAS`操作以外，还调用了`LockSupport`以完成等待操作。
 例如线程在同步队列中进行自旋等待时，调用的方法：
-```
+```java
 private final boolean parkAndCheckInterrupt() {
         LockSupport.park(this);
         return Thread.interrupted();
 }
 ```
 唤醒下一个节点时调用的方法：
-```
+```java
 private void unparkSuccessor(Node node) {
         int ws = node.waitStatus;
         if (ws < 0)
@@ -364,7 +364,7 @@ private void unparkSuccessor(Node node) {
 `LockSupport`提供的`park`/`unpark`类似于`wait`/`notify`，都是等待/通知的模式。主要存在以下几点不同：
 1. `park`还可能在没有被唤醒的时候返回,因此必须在循环中重新检查返回条件。这种设计是一种忙碌等待的优化，效率介于快速自旋与`wait`之间,灵敏度介于快速自旋与`wait`之间。
 示例用法（检查返回条件）:
-```
+```java
 public final void await() throws InterruptedException {
             if (Thread.interrupted())
                 throw new InterruptedException();
@@ -397,7 +397,7 @@ blocker对象用于调试。
 ```
 
 `park`与`unpark`的实现都是委托给了一个`Unsafe`对象`U`实现的：
-```
+```java
 // Hotspot implementation via intrinsics API
 private static final Unsafe U = Unsafe.getUnsafe();
 public static void park() {
@@ -413,7 +413,7 @@ public static void park() {
 
 **Blocker参数**
 带`Blocker`参数的`park`方法:
-```
+```java
 public static void park(Object blocker) {
         Thread t = Thread.currentThread();
         setBlocker(t, blocker);
@@ -434,7 +434,7 @@ private static void setBlocker(Thread t, Object arg) {
 
 **实验`Blocker`：**
 
-```
+```java
 public class ParkWithBlockerTest {
     public static class UnparkerAndReciever extends Thread {
         Thread main;
