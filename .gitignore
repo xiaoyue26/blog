@@ -7,3 +7,5 @@ public/
 .deploy*/
 .idea
 themes/cafe
+package.json
+package-lock.json
