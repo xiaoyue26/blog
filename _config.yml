@@ -80,5 +80,6 @@ theme: cafe
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repository: git@github.com:xiaoyue26/xiaoyue26.github.io.git
+  # repository: git@github.com:xiaoyue26/xiaoyue26.github.io.git
+  repository: https://github.com/xiaoyue26/xiaoyue26.github.io.git
   branch: master

@@ -1,5 +1,5 @@
 ---
-title: java并发编程的艺术笔记-第六章1-map
+title: java并发编程的艺术笔记-第六章-1-map
 date: 2018-04-07 21:49:47
 tags: 
 - java
@@ -53,7 +53,7 @@ static final class HashEntry<K,V> {
 
  
 **特点**
-1. 实际并发度为2的n次方。（离散取值，而不是连续）
+1.实际并发度为2的n次方。（离散取值，而不是连续）
 =>原因：
 `Segment`数组的长度需要为2的n次方
 =>原因：
@@ -68,7 +68,7 @@ int index = hash & (tab.length - 1);// 定位HashEntry所使用的hash算法
 并发度(`Concurrency Level`)实际就是由多少锁，也就是`Segment`数组的长度。
 如果设定并发度为14，实际上会创建长度为16的`Segment`数组，也就是实际并发度为16.
 
-2. **弱一致性**
+2.**弱一致性**
 写入的数据并不一定能马上读到，或者不一定能读到最新数据。
 // `get`,`containsKey`,`clear`方法和迭代器都是弱一致性的
 原因：
