@@ -97,7 +97,10 @@ show warnings;
 -- 可以得到重构出的查询。
 ```
 7. 检查是内排还是外排(`max_length_for_sort_data`控制);
-8. 排序优化;
+8. 排序优化:
+关联查询排序时候，尽量把Order by的列提到第一张表中。
+( 如果Order by的所有列都来自关联的第1个表，Mysql在关联处理第一个表的时候就会进行排序。)
+
 9. 网络传输;
 （1）缓冲区大小(`SQL_BUFFER_RESULT`);
 （2）先释放表锁，再发送结果：`SQL_BUFFER_RESULT`。
