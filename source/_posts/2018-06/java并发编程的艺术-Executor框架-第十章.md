@@ -65,6 +65,31 @@ submit任务到Executor后，返回一个Future接口对象，目前jdk的实现
 4. 饱和: Blocking满,且达到maximumPool,调用rejectedExecutorHandler.
 ```
 
+## 创建线程池的方法:
+1. 使用`ExecutorService`中提供的定制好的线程池:
+```java
+Executors.newFixedThreadPool(1);
+Executors.newSingleThreadExecutor();
+Executors.newCachedThreadPool();
+ExecutorService es = Executors.newCachedThreadPool();
+```
+2. 自己用`ThreadPoolExecutor`定制一个线程池:
+```java
+// 手动自定义详细参数:
+ExecutorService es2 = new ThreadPoolExecutor(10, 10
+, 101, TimeUnit.SECONDS
+, new LinkedBlockingQueue<Runnable>(2000));
+```
+
+其中的继承关系是:
+```java
+ThreadPoolExecutor->AbstractExecutorService->ExecutorService
+ThreadPoolExecutor extends AbstractExecutorService
+abstract class AbstractExecutorService implements ExecutorService
+```
+
+
+
 ## FixedThreadPool
 ```java
 // ThreadPoolExecutor实现类中的通用方法:
