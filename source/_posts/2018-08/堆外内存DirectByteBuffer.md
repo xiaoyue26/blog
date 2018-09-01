@@ -19,6 +19,14 @@ categories:
 
 2.显式：使用`DirectByteBuffer`，直接在堆外分配空间，节省1倍空间，减去一倍拷贝操作。
 
+```java
+// 底层源码:
+unsafe.allocateMemory(size)
+```
+
+## Unsafe
+java直接管理内存用的类,之所以叫`Unsafe`,意思是这些原来设计是给sun公司的人专用的，不是开放给外面的人用的，希望普通用户不要依赖它的接口，随时随着jdk版本升级而更改接口。// 如果不升级jdk，就不用care了。
+并不是说这个类不安全。
 
 ## 使用场景
 (因为不gc)
