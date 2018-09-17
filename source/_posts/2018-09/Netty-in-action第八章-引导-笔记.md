@@ -157,7 +157,7 @@ option: 后续新建的serverChannel的配置; // bind后生效
 attr: 设置给当前serverChannel的属性;
 handler: 设置给当前serverChannel的pipeline。
 ```
-容易混淆的就是Option用于新,Attr用于旧。
+容易混淆的就是Option用于配置固定的几个参数比如超时时间,Attr用于存自定义属性。
 
 ## ServerChannel
 accept新连接后,`ServerChannel`创建`子Channel`。
