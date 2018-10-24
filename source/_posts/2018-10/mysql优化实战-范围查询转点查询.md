@@ -114,7 +114,7 @@ set profiling=1;
 -- select * from xxx ;
 show profiles;
 show profile for query 1;
-show profile for query 1;
+show profile all for query 1; -- cpu,io等详细信息
 ```
 这里可以看到之前的慢查询发生了51w个block io input。
 
