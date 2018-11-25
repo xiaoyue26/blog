@@ -3,10 +3,10 @@ title: jinfo-运行时查看JVM配置及更改
 date: 2018-11-25 20:12:57
 tags:
 - java
-- gc
+- jvm
 categories:
 - java
-- gc
+- jvm
 
 ---
 
