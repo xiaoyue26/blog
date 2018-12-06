@@ -4,9 +4,10 @@ date: 2018-11-24 22:40:42
 tags:
 - java
 - gc
+- jvm 
 categories:
 - java
-- gc
+- jvm
 
 ---
 
