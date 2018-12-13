@@ -56,6 +56,8 @@ jmap -histo:live <PID>
 ```sh
 jmap -dump:live,format=b,file=heap.dump <PID>
 ```
+需要注意这些指令都可能导致进程挂起,不能频繁在线上环境执行。
+
 得到`heap dump`文件以后,可以:
 1. 用jhat命令: `jhat -port 443 [filename] `,然后访问`http://localhost:443`查看;
 2. 装入到`jvisualvm`中查看.

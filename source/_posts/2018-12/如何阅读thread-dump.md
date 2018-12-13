@@ -21,6 +21,9 @@ jstack <PID>
 3. 用文本编辑器打开.
 
 其中第二个方法，用网站查看最好用。
+此外还可以用另一个网站: http://fastthread.io/
+这个网站还能看core dump和hs_err_pid142043.log
+
 
 ## jvisualvm查看thread dump
 和用文本编辑器的区别只有一个，就是多了语法高亮(字体颜色有区分)。
