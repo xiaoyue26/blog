@@ -34,8 +34,6 @@ https://eclipse.org/mat/downloads.php
 - 数组的shallow size有数组元素的类型（对象类型、基本类型）和数组长度决定
 #### `Shallow size`最大一般是`byte[], char[], int[]`
 
-### GC Root
-
 ## Action面板的功能
 ### Histogram
 `默认Shallow size排序`
