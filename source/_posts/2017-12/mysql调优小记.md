@@ -24,38 +24,10 @@ show processlist
 发现Query很多,`show full processlist`找出查询语句,发现多表join的时候没有利用到索引.
 查询语句模式如下:
 ```sql
-explain
-select *
-from  a
-LEFT join b
-    on a.dt=b.dt
-    and a.platform=b.platform
-    and a.version=b.version
-    AND a.vendor=b.vendor
-where a.dt>='2017-12-01' and a.dt<='2017-12-07'
-and a.platform='xxx' ... 
+explain select ...
 ```
-mysql没有通过语义上的相等,把加给a表的条件传递给b表,导致多表join的时候没有利用到索. 此时`explain`后得到的a表`type`是`range`而b表是`ALL`. 后续还有几个join也都是类似情况,因此把给它们分别都加上子查询:
-```sql
-explain
-select ...
-from (SELECT * FROM aa
-          WHERE dt>='2017-12-01' and dt<='2017-12-07'
-          AND phase='xx' AND grade='xx'
-          AND vendor='xx'
-          ) AS a
-    left join
-          (SELECT * FROM bb
-          WHERE dt>='2017-12-01' and dt<='2017-12-07'
-          AND phase='xx' AND grade=''
-          AND vendor='xx'
-          )AS b
-    on a.dt=b.dt
-    and a.platform=b.platform
-    and a.version=b.version
-    AND a.vendor=b.vendor
-...
-```
+发现没有用上索引,更改查询语句。
+
 
 - `explain`查询计划中的`type`:
 ```sql
