@@ -146,6 +146,14 @@ show binlog events in 'mysql-bin.000643' from 1073742091;
 
 由于serverid，主库不会重复消费自己的变更。（忽略自己的日志）
 
+### 确定备库追上了主库
+```sql
+-- 主库:
+show master status;-- 记录一下文件名和偏移量
+-- 备库:
+select master_pos_wait(file, pos[, timeout])
+```
+
 ### 4. 环形(>=3的库成环)
 不建议使用，太脆弱容易死循环。
 ### 5. 分发主库
