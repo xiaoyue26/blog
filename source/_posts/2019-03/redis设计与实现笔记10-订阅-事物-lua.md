@@ -2,6 +2,10 @@
 title: 'redis设计与实现笔记10-订阅,事物,lua'
 date: 2019-03-10 20:08:34
 tags:
+- redis
+categories:
+- redis
+
 ---
 
 # 发布订阅
