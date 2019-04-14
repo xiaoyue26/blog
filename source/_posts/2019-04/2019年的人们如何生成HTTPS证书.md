@@ -30,6 +30,9 @@ https://xiaoyue26.github.io/2018/09/26/2018-09/%E9%80%9A%E4%BF%97%E7%90%86%E8%A7
 原理上只需要让nginx负责SSL协议的部分即可，不需要动后端网站服务。
 客户端发送HTTPS请求到nginx服务器，nginx服务器转发HTTP请求到后端网站服务。
 （封装的思想，上层变动对底层HTTP服务透明）
+**HTTPS中断、TLS中断：**
+nginx直接负责搞定ssl部分，netty等后端服务只需要负责http部分就好了。
+如果依赖nginx的话，netty的SslHandler什么的都可以废掉了XD
 
 所以我们只需要关心架构中的前半部分:
 请求=>nginx服务器
