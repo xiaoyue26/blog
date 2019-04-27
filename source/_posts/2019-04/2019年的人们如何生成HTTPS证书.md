@@ -201,3 +201,33 @@ server {
 
 最后得到chrome的承认:
 {% img /images/2019-04/chrome_safe.png 800 1200 chrome_safe %}
+
+
+## 其他
+还可以查看openssl支持的ssl/tls版本:
+```
+openssl ciphers -v | awk '{print $2}' | sort | uniq
+```
+查看本地的443端口是否支持tls1.2协商:
+```
+openssl s_client -connect localhost:443 -tls1_2
+```
+成功的话会返回一大段内容，包括:
+```
+# 前面一大堆
+---
+Certificate chain
+ 0 s:/C=US/ST=RandomState/L=RandomCity/O=RandomOrganization/OU=RandomOrganizationUnit/emailAddress=296671657@qq.com/CN=kandiandata.oa.com
+   i:/C=XX/L=Default City/O=tencent/OU=kandian/CN=pipe_ca/emailAddress=296671657@qq.com
+---
+Server certificate
+# 后面一大堆
+```
+失败的话:
+```
+---
+no peer certificate available
+---
+No client certificate CA names sent
+---
+```
