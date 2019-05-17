@@ -13,7 +13,7 @@ categories:
 3. Dataframe: 继承UserDefinedAggregateFunction;
 4. Dataset: 继承Aggregator。
 
-   前文探索了解决sql对于单行处理的能力盲区(http://xiaoyue26.github.io/2019/05/08/2019-05/%E5%B0%86pyspark%E4%B8%AD%E7%9A%84UDF%E5%8A%A0%E9%80%9F50/)，本文接着探索解决sql对于多行处理(UDAF/用户自定义聚合函数)的能力盲区。
+   前文探索了解决sql对于单行处理的能力盲区(http://xiaoyue26.github.io/2019/05/08/2019-05/%E5%B0%86pyspark%E4%B8%AD%E7%9A%84UDF%E5%8A%A0%E9%80%9F50/ )，本文接着探索解决sql对于多行处理(UDAF/用户自定义聚合函数)的能力盲区。
 
 # 姿势1：搭配collect_set+UDF
 基本思想是强行把一个group行拼成一个数组，然后编写一个能处理数组的UDF即可。如果是多行变多行，则UDF的输出也构造成数组，然后用explode打开。如果想要把多行聚合成一行（类似于sum），则直接输出结果即可。
@@ -206,13 +206,13 @@ val spark = SparkSession.builder.appName("UdfDemo").getOrCreate()
     ds2.printSchema()
     ds2.take(10).foreach(println)
 ```
-其中`Encoder`部分由于还不支持Set集合类型，可以使用kryo序列化成二进制。（更多Encoder相关参见:http://xiaoyue26.github.io/2019/04/27/2019-04/spark%E4%B8%AD%E7%9A%84encoder/）
+其中`Encoder`部分由于还不支持Set集合类型，可以使用kryo序列化成二进制。（更多Encoder相关参见:http://xiaoyue26.github.io/2019/04/27/2019-04/spark%E4%B8%AD%E7%9A%84encoder/ ）
 
 优点: 类型安全，继承Aggregator开发的成本略小于继承UserDefinedAggregateFunction;
 缺点: 只支持scala，需要编译。
 
 # 总结
-本文总结了在Rdd,Dataframe,Dataset三种api下编写UDAF的方法（三种api的对比参见http://xiaoyue26.github.io/2019/04/29/2019-04/spark%E4%B8%ADRDD%EF%BC%8CDataframe%EF%BC%8CDataSet%E5%8C%BA%E5%88%AB%E5%AF%B9%E6%AF%94/），以及使用UDF模拟UDAF功能的方法。大家可以根据自己熟悉的api和需求选择。
+本文总结了在Rdd,Dataframe,Dataset三种api下编写UDAF的方法（三种api的对比参见http://xiaoyue26.github.io/2019/04/29/2019-04/spark%E4%B8%ADRDD%EF%BC%8CDataframe%EF%BC%8CDataSet%E5%8C%BA%E5%88%AB%E5%AF%B9%E6%AF%94/ ），以及使用UDF模拟UDAF功能的方法。大家可以根据自己熟悉的api和需求选择。
 - 如果不在意性能：用`collect_set`+`UDF`模拟一个；(姿势1)
 - 如果在意性能，但是只用一次: 可以直接用RDD的`combineByKey`，代码较短；（姿势2） 
 - 如果在意性能，而且会反复复用: 建议使用Dataframe，继承`UserDefinedAggregateFunction`编写一个UDAF。（姿势3）
