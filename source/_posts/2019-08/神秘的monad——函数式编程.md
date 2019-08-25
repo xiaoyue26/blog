@@ -34,7 +34,7 @@ trait Monoid[A] extends SemiGroup[A] {
 
 // 函子: (有map函数就是Functor)
 trait Functor[F[_]] {
-  // 输入一个A的容器F[A],输入一个A类型=>B类型的容器
+  // 输入一个A的容器F[A],输入一个A类型=>B类型的变化
   // 输出B类型的容器F[B]
   def map[A, B](a: F[A])(f: A => B): F[B]
 }
