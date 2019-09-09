@@ -25,7 +25,7 @@ https://source.android.google.cn/devices/tech/dalvik/improvements
 2. 根据ABI移动参数到寄存器或者栈;(ABI: 应用二进制接口)
 3. 封装对象引用到JNI handlers;
 4. 获取静态方法的`JNIEnv*`和`jclass`,把他们作为额外参数传递;
-5. 检查是否调用`method_entry`; 
+5. 检查是否调用`method_entry`的trace函数; 
 6. 检查是否调用对象锁;（`synchronized`）(optinal)
 7. 检查native方法是否已经链接;(懒加载函数检查、链接)
 8. 线程状态从`in_java`转变为`in_native`;
@@ -38,7 +38,7 @@ https://source.android.google.cn/devices/tech/dalvik/improvements
 15. 处理JNI异常;
 16. 移除栈帧。
 
-开销比简单的C调用更大。
+开销比较大,主要是用于各种参数拷贝,尤其是遇到数组，需要来回拷贝、检查。
 
 此时，如果是足够简单的native方法,可以用`Critical Natives`来降低开销。
 
@@ -59,6 +59,7 @@ https://source.android.google.cn/devices/tech/dalvik/improvements
 3. java数组传递的时候用两个参数: 数组长度、数组引用(基本类型)。
 // 这样不再需要调用`GetArrayLength`、`GetByteArrayElements`等函数。
  
+此外critical natives方法变成临界区。
 `native`方法示例:
 ```c
 JNIEXPORT jint JNICALL
@@ -79,12 +80,43 @@ JavaCritical_com_package_MyClass_nativeMethod(jint length, jbyte* buf) {
     return process(buf, length);
 }
 ```
-样例代码: https://gist.github.com/apangin/af70e39b25e578d13484e937c66c7985
 
-`critical`版本的方法是JIT需要的;
-普通`native`版本的方法是编译器需要的;
+`critical`版本的方法是JIT需要的(默认是调用超过1500次,可以调JIT参数`-XX:CompileThreshold=invocations`);
+普通`native`版本的方法是解释器需要的;
 
-因此实际用的时候，这俩版本的代码都要写上。
+因此实际用的时候，这俩版本的代码都要写上。比如是这样的:
+```c
+#include <jni.h>
+
+static int sum(jbyte* array, int length) {
+    int result = 0;
+    int i;
+    for (i = 0; i < length; i++) {
+        result += array[i];
+    }
+    return result;
+}
+/*
+ * Class:     com_tencent_xxx_test_Natives
+ * Method:    javaCriticalImpl
+ * Signature: ([B)I
+ */
+JNIEXPORT jint JNICALL Java_com_tencent_xxx_test_Natives_javaCriticalImpl
+  (JNIEnv* env, jclass cls, jbyteArray array){
+  jboolean isCopy;
+  jint length = (*env)->GetArrayLength(env, array);
+  jbyte* buf = (jbyte*) (*env)->GetPrimitiveArrayCritical(env, array, &isCopy);
+  jint result = sum(buf, length);
+  (*env)->ReleasePrimitiveArrayCritical(env, array, buf, JNI_ABORT);
+  // 有副作用的c函数用0; 无副作用的c函数直接用JNI_ABORT.
+  return result;
+}
+
+JNIEXPORT jint JNICALL
+JavaCritical_com_tencent_xxx_test_Natives_javaCriticalImpl(jint length, jbyte* buf) {
+    return sum(buf, length);
+}
+```
 
 (之所以这么繁琐的原因是这个特性和Unsafe一样是jdk内部使用的,没有公开发布给普通程序员,正式发布估计要到jdk10了)
 
