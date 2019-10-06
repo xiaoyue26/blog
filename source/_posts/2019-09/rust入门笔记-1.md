@@ -143,3 +143,390 @@ let a = [1, 2, 3, 4, 5];
 let a: [i32; 5] = [1, 2, 3, 4, 5];
 ```
 
+
+## 函数
+用fn声明. 
+```rust
+fn main() {
+    another_function(5, 6);
+}
+
+fn another_function(x: i32, y: i32) {
+    println!("The value of x is: {}", x);
+    println!("The value of y is: {}", y);
+}
+fn five() -> i32 { // 返回i32类型
+    5
+}
+```
+## 表达式
+表达式的结尾没有分号
+```rust
+let y = {
+        let x = 3;
+        x + 1 // 没有分号
+    };
+// y=4
+```
+## 循环
+loop,while,for
+```rust
+let result = loop {
+    counter += 1;
+    if counter == 10 {
+        break counter * 2;
+    }
+};
+assert_eq!(result, 20);
+while index < 5 {
+    println!("the value is: {}", a[index]);
+    index = index + 1;
+}
+let a = [10, 20, 30, 40, 50];
+for element in a.iter() {
+    println!("the value is: {}", element);
+}
+for number in (1..4).rev() {
+    println!("{}!", number);
+}
+```
+
+# ownership 所有权
+rust无需gc。
+要学习的点包括: 借用、slice、内存布局。
+> 所有权：管理堆数据
+
+所有权的三大法则: 
+> 1. Rust中的每一个值都有一个被称为其 所有者（owner）的变量。
+2. 值有且只有一个所有者。
+3. 当所有者（变量）离开作用域，这个值将被丢弃。
+
+创建一个堆上的变量:
+```rust
+{
+let s = String::from("hello");
+s.push_str(", world!"); // 追加
+}// rust自动调用s的drop,回收内存(类似于free\RAII模式)
+```
+s的大小运行时可变，因此它显然分配在堆上。(栈每个slot大小相同)
+
+## 浅拷贝、深拷贝、移动
+rust对复杂类型默认是移动;
+基本类型直接深拷贝。
+rust没有浅拷贝、只有移动。
+```rust
+// 移动:
+let s1 = String::from("hello");
+let s2 = s1;
+println!("{}, world!", s1); // fail,s1已经无效,被移动为s2了。
+// 深拷贝:
+let s1 = String::from("hello");
+let s2 = s1.clone();
+println!("s1 = {}, s2 = {}", s1, s2);
+// 基本类型:
+let x = 5;
+let y = x;
+println!("x = {}, y = {}", x, y);
+```
+总结就是: 
+浅拷贝: 无;
+深拷贝: 显式调用`clone`、或者是基本类型;
+移动:   复杂类型;
+
+如果一个类型拥有`Copy trait`,
+一个旧的变量在将其赋值给其他变量后仍然可用。
+rust的逻辑是，如果发现一个类型没有实现`Copy`，它就进行`move`。
+
+除了用等号，调用函数时也会发生移动或者深拷贝。
+例如:
+```rust
+let s = String::from("hello");  // s 进入作用域
+takes_ownership(s);             // s 的值移动到函数里 ...
+                                // ... 所以到这里s不再有效
+```
+函数return的时候也类似于等号，也会发生移动或者深拷贝，因此可以用return再取回所有权。
+```rust
+let s = String::from("hello");
+let s = takes_back_ownership(s);
+```
+可以用`&`号来简化这个过程:
+```rust
+let s1 = String::from("hello");
+let len = calculate_length(&s1); // 多一个&来取回所有权
+```
+这里`calculate_length`函数没有所有权，因此是借用了s1变量。
+## 借用
+函数借用变量s,不拥有所有权。
+```rust
+fn main() {
+    let mut s = String::from("hello");
+    change(&mut s);
+}
+fn change(some_string: &mut String) {
+    some_string.push_str(", world");
+}
+```
+借用并且要修改的话，要显式写上`&mut`.
+### 借用的竞态
+rust默认禁止竞态,编译不予通过:
+```rust
+let mut s = String::from("hello");
+let r1 = &mut s;
+let r2 = &mut s;// 如果后续都用的话报错,两个变量都借用了s,而且都是可写，有竞态,在同一作用域内。
+// 只读引用的话可以有多个:
+let r1 = &s; // no problem
+let r2 = &s; // no problem
+let r3 = &mut s; // BIG PROBLEM 有只读引用的时候，也不能再有可写引用
+```
+借用结束的话可以消除竞态:
+```rust
+let mut a = String::from("hello world");
+let b = &a[0..4];
+println!("{}", b);
+append_a(&mut a);// 这里没问题,因为b后面没有用到。
+// println!("{}", b); // 这里会报错，因为b的作用域和a的有交叉。
+
+```
+
+### 悬挂指针
+Rust 中编译器确保永远不会有悬挂指针。
+构造悬挂指针: 
+```rust
+fn main() {
+    let reference_to_nothing = dangle();
+}
+fn dangle() -> &String {
+    let s = String::from("hello");
+    &s // 编译失败
+}
+```
+
+## slice
+slice的类型多一个&,属于不可变引用。
+比如string的slice类型: `&str`，
+字符串的字面量的类型：`str`
+slice语法很简单:
+```rust
+let s = String::from("hello");
+
+let slice = &s[0..2];
+let slice = &s[..2];
+let slice = &s[0..len]; // 整个字符串
+let slice = &s[..]; // 省略头尾
+// 包含右端点:
+let hello = &s[0..=4];
+```
+用slice的好处是可以预防错误，因为持有了不可变引用，其他试图修改s的操作就会被阻止，因为修改s的时候会申请可变引用，根据上一节中的竞态阻止，申请可变引用会失败。
+
+### 数组的slice
+类型是 `&[i32]`
+```rust
+let a = [1, 2, 3, 4, 5];
+let slice = &a[1..3];
+println!("{:?}",slice);
+```
+
+## 结构体struct
+```rust
+# struct User {
+#     username: String,
+#     email: String,
+#     sign_in_count: u64,
+#     active: bool,
+# }
+#
+let mut user1 = User {
+    email: String::from("someone@example.com"),
+    username: String::from("someusername123"),
+    active: true,
+    sign_in_count: 1,
+};
+
+user1.email = String::from("anotheremail@example.com");
+```
+以前写代码经常会有`this.email=email`这种机械重复的代码，rust提供了简写省略的方法。
+构造函数的简写: (`new`)
+```rust
+fn build_user(email: String, username: String) -> User {
+    User {
+        email, // 这里省略了同名输入变量
+        username,
+        active: true,
+        sign_in_count: 1,
+    }
+}
+```
+类似的，结构体的update也有相应的简写:
+```rust
+let user2 = User {
+    email: String::from("another@example.com"),
+    username: String::from("anotherusername567"),
+    ..user1 // 这句话的意思是其他变量都按user1的值来赋值就好
+};
+```
+
+结构体的实例方法和类方法区别在于有没有第一个`&self`参数,方法可以位于不同`impl`块中:
+```rust
+# #[derive(Debug)]
+# struct Rectangle {
+#     width: u32,
+#     height: u32,
+# }
+#
+impl Rectangle {
+    fn area(&self) -> u32 { // 实例方法
+        self.width * self.height
+    }
+}
+
+impl Rectangle {
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        self.width > other.width && self.height > other.height
+    }
+}
+impl Rectangle {
+    fn square(size: u32) -> Rectangle {// 关联方法、类方法
+        Rectangle { width: size, height: size }
+    }
+}
+```
+
+## 自动解引用功能
+统一`obj.xxx()`操作和`obj->xxx()`.
+rust自动解引用:
+> 当使用 object.something() 调用方法时，Rust 会自动为 object 添加 &、&mut 或 * 以便使 object 与方法签名匹配。
+
+## 枚举
+枚举可以直接绑定数据类型：(类似于一种`typedef`)
+```rust
+enum IpAddr {
+    V4(u8, u8, u8, u8),
+    V6(String),
+}
+let home = IpAddr::V4(127, 0, 0, 1);
+let loopback = IpAddr::V6(String::from("::1"));
+```
+也可以作为朴素的数据(数字):
+```rust
+# enum IpAddrKind {
+#     V4,
+#     V6,
+# }
+#
+let four = IpAddrKind::V4;
+let six = IpAddrKind::V6;
+```
+`Option`也是一种枚举类型。
+
+## match
+match的时候可以自动unapply枚举型:
+```rust
+match x {
+        None => None,
+        Some(i) => Some(i + 1),
+    }
+// 更复杂:
+# #[derive(Debug)] // 支持直接打印
+# enum UsState {
+#    Alabama,
+#    Alaska,
+# }
+#
+# enum Coin {
+#    Penny,
+#    Nickel,
+#    Dime,
+#    Quarter(UsState),
+# }
+#
+match coin {
+        Coin::Penny => 1,
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter(state) => {
+            println!("State quarter from {:?}!", state);
+            25
+        },
+        _ => (), 
+}
+```
+这里类似于最后default兜底的值是`_`,返回值是`()`也就是`unit`类型。
+`if let`是match的语法糖:
+```rust
+let mut count = 0;
+if let Coin::Quarter(state) = coin {
+    println!("State quarter from {:?}!", state);
+} else {
+    count += 1;
+}
+```
+
+# 包
+package: 包。cargo的功能.`cargo new`生成,带有`Cargo.toml`文件;里面可以有多个库。
+Crates： 库。很多模块构成的库；(或者程序)
+Modules: 模块。
+
+
+包默认生成的库：
+1.  `src/main.rs`; (程序、数量任意)
+2.  `src/lib.rs`;  (库、最多1个)
+
+# 模块
+```rust
+mod sound {// 同包下可以访问
+    pub mod instrument {// 公有
+        pub fn clarinet() {// 公有
+            // 函数体
+        }
+    }
+}
+fn main() {
+    // 绝对路径
+    crate::sound::instrument::clarinet();
+    // 相对路径
+    sound::instrument::clarinet();
+}
+```
+## super相对路径
+
+```rust
+mod sound {
+    mod instrument {
+        fn clarinet() {
+            super::breathe_in();
+        }
+    }
+    fn breathe_in() {
+        // 函数体
+    }
+}
+```
+
+## use关键字引用
+类似于`import`
+```rust
+use crate::sound::instrument;
+// 相对路径引入:
+use self::sound::instrument; // 一般还是用绝对路径引入
+
+// 同名冲突处理: 使用as重命名
+use std::fmt::Result;
+use std::io::Result as IoResult;
+
+```
+默认use引入的项变成了私有，可以再加上pub让引入的项维持公有:
+```rust
+pub use crate::sound::instrument;
+```
+
+## 访问修饰符pub
+枚举`enum`: 一旦pub，则所有字段pub;
+结构体`struct`: 必须显式设定每个字段为pub，默认是private;
+
+## 模块化
+每个mod放在自己的同名文件中，其他文件中要用的时候，声明一下即可:
+```rust
+mod sound;
+```
+末尾是分号。
+
