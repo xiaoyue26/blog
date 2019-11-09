@@ -319,6 +319,16 @@ public Optional<Car> getCarAsOptional() {
 }
 ```
 
+Optional不能滥用(不能序列化):(java Lambda（JSR-335）专家组考虑并拒绝了它)
+> 尽量避免将Optional用于类属性、方法参数及集合元素中，因为以上三种情况，完全可以使用null值来代替Optional，没有必要必须使用Optional，另外Optional本身为引用类型，大量使用Optional会出现类似(这样描述不完全准确)封箱、拆箱的操作，在一定程度上会影响JVM的堆内存及内存回收。
+相关tip:
+https://segmentfault.com/a/1190000018936877?utm_source=tag-newest
+
+- 不要放进Map里，因为Optional不是作为值类型设计的，它的`equals、hashcode、==`方法都不能保证正确性(和唯一性有关的方法)。
+
+最后: POJO还是保持纯粹，这样也有向前先后兼容性。
+
+
 # 异步编程
 
 无法从线程失败中恢复的版本:
@@ -468,6 +478,42 @@ ZonedDateTime zdt1 = date.atStartOfDay(romeZone);
 
 
 
+# 其他tips
+ConcurrentHashMap类：
+用`mappingCount`方法代替`size`方法;
+`mappingCount`: 返回long;
+`size`: 返回int; (实际大小超过int时无效)
+
+重复遍历流: 可以使用StreamForker,缺点本质上是存了内存。
+
+# lambda底层实现
+## 匿名类的实现
+匿名内部类底层是生成一个`class$1`的类。(外层类名+数字)
+缺点： 每个类都需要加载、验证的操作，如果类太多，开销太大；
+
+## 查看字节码和常量池
+使用命令:
+```shell
+javap -c -v ClassName 
+```
+
+
+## lambda的实现： InvokeDynamic
+本质上是在所在类里新增了一个方法。将Lambda表达式的代码体填入到运行时动态创建的`静态方法`，就完成了Lambda表达式的字节码转换。
+动态链接方法，然后用`InvokeDynamic`调用:
+```java
+public class Lambda {
+    Function<Object, String> f = [dynamic invocation of lambda$1]
+     static String lambda$1(Object obj) {
+        return obj.toString();
+     }
+} 
+```
+优点:
+1. lamda相关字节码的生成推迟到使用的时候; (懒加载)
+2. 如果不是闭包：有类似于static final变量的缓存效果;(闭包的话,因为可能捕获不同的局部变量，不可以缓存)
+3. 没有额外的开销;
+如果lambda是个闭包，也就是捕获了其他作用域内的变量(当然编译时会要求是final或者实质上是final)，也很简单，就是给这个函数加一个参数即可。
 
 
 
