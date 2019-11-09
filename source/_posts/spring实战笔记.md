@@ -117,7 +117,7 @@ execution(* concert.Performance.perform(..))
 
 
 代码见:
-https://github.com/xiaoyue26/spring-gradle/tree/master/src/main/java/com/xiaoyue/nov/concert
+https://github.com/xiaoyue26/spring-gradle/tree/master/src/main/java/com/xiaoyue/nov/practice/concert
 
 
 书里还提供了一个思路,通过AOP扩展原来的类,而不改动原来的源代码.

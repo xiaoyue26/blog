@@ -133,4 +133,4 @@ public void cancel(){this.interrupt();}
 shutdownNow会返回尚未开始的线程列表. 无法获得中途取消的. 
 可以自己封装一遍ExecutorsService. 重写execute方法,捕获异常判断状态,记录取消的线程.
 详见代码:
-https://github.com/xiaoyue26/scala-gradle-demo/blob/master/src/main/java/practice/chapter7/TrackingExecutor.java
+https://github.com/xiaoyue26/july/blob/master/src/main/java/practice/chapter7/TrackingExecutor.java

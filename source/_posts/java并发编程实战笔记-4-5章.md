@@ -201,7 +201,7 @@ public class TestLatch {
 > 比Run多个返回值V.
 
 - FutureTask<V>
-> 声明实现的借口是Runnable和Future<V>. 
+> 声明实现的接口是Runnable和Future<V>. 
 但实际上里头有个适配器,把Runnable转成Callable.
 而且它可以接收Callable作为构造函数的参数.
 运行的时候直接ftask.run()即可. 
