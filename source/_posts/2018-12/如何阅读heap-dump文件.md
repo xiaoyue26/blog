@@ -13,6 +13,13 @@ categories:
 
 参考资料: http://www.importnew.com/24393.html
 
+
+首先可以尝试用google-perftools查看统计结果,然后用MAT查看heap dump的详细内容。
+# 谷歌的性能分析工具google-perftools
+`/usr/local/gperftools/bin/pprof --text $JAVA_HOME/bin/java /data/gperf/ worker.0001.heap`
+查看统计结果。
+
+
 # 下载MAT
 https://eclipse.org/mat/downloads.php
 注意打开的时候要选打开heap dump，而不是open file，不然会打开失败。

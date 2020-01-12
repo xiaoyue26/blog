@@ -42,6 +42,16 @@ jstack <PID>
 - 线程状态: RUNNABLE
 - [0x0000000000000000]： 起始栈地址。
 
+### 案例: 遇到cpu100%的情况
+1. 查看某进程下占用高的线程id: 
+`top –H –p <进程id>`
+这里从结果里得到比如 16143 线程id;
+2. 查看thread dump:
+`jstack -l <进程id>`
+上一步的线程id(16143)转换为16进制为`0x3f0f`,因此在thread dump中看看`0x3f0f`相关信息即可。（也就是上文中的nid）
+（可以定位到具体是啥线程了）
+
+
 ## 网站查看thread dump
 http://spotify.github.io/threaddump-analyzer
 几个改进:

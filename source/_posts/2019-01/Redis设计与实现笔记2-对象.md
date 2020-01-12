@@ -32,6 +32,11 @@ typedef struct redisObject {    // redis对象
 OBJECT IDLETIME msg
 ```
 2^24s=>大概194天。
+redis中lru的具体实现逻辑:
+https://zhuanlan.zhihu.com/p/34133067
+
+成本较高,redis4后引入lfu,效率近似于原来的lru.(因为原来就是偏概率的算法,不是标准的lru)
+
 
 类型:
 
