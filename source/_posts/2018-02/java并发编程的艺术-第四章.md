@@ -341,6 +341,7 @@ SourceFile: "SynchronizedTest.java"
 ### 4.3.2 等待/通知机制
 
 相关Java方法：
+
 | 方法          | 描述    |
 | :--------:   | :----- |
 | obj.wait() | 在某个对象上等待         | 
