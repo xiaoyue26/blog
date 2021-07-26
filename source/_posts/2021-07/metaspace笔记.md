@@ -4,7 +4,10 @@ date: 2021-07-26 11:45:43
 tag:
 - java
 - jvm
-categories: jvm 
+- metaspace
+categories: 
+- java
+- jvm
 
 ---
 
