@@ -13,6 +13,9 @@ categories:
 
 ---
 
+# BBR
+BBR = `Bottleneck Bandwidth and Round-trip time` 
+
 # 拥塞控制算法
 tcp默认使用cubic算法做拥塞控制;
 谷歌的quic开发了新的拥塞控制算法，吞吐量更大，更能利用带宽开发了新的拥塞控制算法`bbr`,`bbr_v2`;
