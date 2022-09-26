@@ -17,7 +17,9 @@ JSON Web Token（缩写 JWT）是目前最流行的跨域认证解决方案,主�
 可以参考:
 https://www.ruanyifeng.com/blog/2018/07/json_web_token-tutorial.html
 
-可以使用https://jwt.io/查看jwt的三个组成部分:
+可以使用
+https://jwt.io/
+查看jwt的三个组成部分:
 {% img /images/2022-09/jwt.jpg 800 1200 jwt %}
 
 # How: jwt的保密性如何？
