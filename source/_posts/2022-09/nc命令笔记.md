@@ -2,11 +2,11 @@
 title: nc命令笔记
 date: 2022-09-25 18:31:22
 tag:
-  - nc
-  - ncat
-  - shell
+- nc
+- ncat
+- shell
 categories: 
-- shell:
+- shell
 
 ---
 
