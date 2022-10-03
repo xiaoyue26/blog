@@ -98,6 +98,12 @@ https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils/1.9.2
 mvn中央仓库专门有一列`Vulnerabilities`来标示存在`vulnerability`(弱点、漏洞)的库版本。
 (类似于sqlmap中提示某字段是vulnerable的)
 
+
+> CVE(Common Vulnerabilities & Exposures): 漏洞编号，大家约定的、这个漏洞的名字；
+> PoC(Proof of concept): （概念验证）漏洞证明
+> vul(Vulnerability): 泛指漏洞
+> exp: 漏洞利用，一般是个demo程序
+
 根据参考资料，我们可以用`BeanComparator`来构造一个反序列化的攻击。
 创建一个优先队列，把`Comparator`设置成`BeanComparator`，然后塞进2个元素，再强行通过反射换掉元素。
 
