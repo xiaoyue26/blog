@@ -1,5 +1,5 @@
 ---
-title: java反序列化攻击.md
+title: java反序列化攻击
 date: 2022-10-03 16:56:48
 tag:
 - 信息安全
