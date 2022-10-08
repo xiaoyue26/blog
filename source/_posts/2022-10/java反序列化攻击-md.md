@@ -93,7 +93,7 @@ java -jar ysoserial-all.jar CommonsBeanutils1 'curl 172.20.26.42:8081' | base64
 假设我们直接有了目标程序的jar包，则可以解压得到依赖库(lib目录)，然后新建一个Java项目，把依赖jar包全导入进去。
 假设目标程序依赖了`commons-beanutils-1.9.2`，我们从mvn核心库可以看到它存在CVE:
 https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils/1.9.2
-{% img /images/2022-09/cve.png 800 1200 cve %}
+{% img /images/2022-10/cve.png 800 1200 cve %}
 
 mvn中央仓库专门有一列`Vulnerabilities`来标示存在`vulnerability`(弱点、漏洞)的库版本。
 (类似于sqlmap中提示某字段是vulnerable的)
