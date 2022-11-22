@@ -83,3 +83,8 @@ deploy:
   repository: git@github.com:xiaoyue26/xiaoyue26.github.io.git
   # repository: https://github.com/xiaoyue26/xiaoyue26.github.io.git
   branch: master
+
+sitemap:
+  path: sitemap.xml
+baidusitemap:
+  path: baidusite_map.xml
