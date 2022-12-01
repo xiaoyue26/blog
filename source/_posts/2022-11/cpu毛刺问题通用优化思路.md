@@ -197,6 +197,11 @@ after:  8核16GB x 8个
 -XX:+UseTransparentHugePages
 ```
 
+> -XX:-PreserveFramePointer类似于GCC的 -fomit-frame-pointer 选项，PreserveFramePointer选项会将函数调用的frame pointer保存至寄存器，给perf等基于backtrace获取完整调用堆栈的场景提供支持，但同时也额外多执行了一些指令，引入一定开销。 
+> JVM自身提供的jvmti接口，可以在不依赖PreserveFramePointer的情况下，获取Java堆栈，构建在其之上的jstack、async-profiler(AsyncGetCallTrace) 等工具也都不依赖PreserveFramePointer.
+鉴于 「使用native工具获取Java堆栈 」这种场景出现的频率低，而常用JVM诊断工具均不依赖此参数，可以考虑仅在有限环境下开启PreserveFramePointer
+
+
 ## B2 cpu峰值与流量大小有关
 这种情况可能是高并发情况下触发了什么缺陷。
 可以看看线程池的使用率，看看是哪个线程池飙升了，针对性进行优化业务代码。
