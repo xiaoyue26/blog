@@ -34,6 +34,11 @@ tail -fn 100 top.log
 # 容器云监控、诊断
 公司有监控系统，自动开启了许多监控，我们可以看中间件的情况、cpu/线程池的历史情况：
 信息安全因素这里略。
+本质就是定时调用各个线程池的：
+```java
+java.util.concurrent.ThreadPoolExecutor.getTaskCount()
+java.util.concurrent.ThreadPoolExecutor.getActiveCount()
+```
 
 # async-profiler
 配合jfr命令或者JDK Mission Control，可以定位常见的cpu,lock,alloc相关事件的问题。
