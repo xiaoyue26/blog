@@ -133,6 +133,19 @@ tail -fn 100 jvm-debug.log
 ```
 放到容器里，跟踪个几天，才能跟踪到异常时的栈。
 
+或者也可以简单top监控:
+```shell script
+# 只看rpc进程的各线程cpu分布:(可以修改RpcServerModularStarter部分来锁定自己的进程)
+nohup top -b -d 2 -n 2592000 -H -p $(pgrep -d',' -f RpcServerModularStarter) | grep 'top ' -A 30  >> top.log 2>&1 &
+echo $! > nohup2.pid
+
+# 看机器上所有进程的cpu分布:
+nohup top -bc -d 2 -n 2592000 >> top.log 2>&1 &
+echo $! > nohup.pid
+
+tail -fn 100 top.log
+```
+
 ### graal编译器
 有时候遇到一种情况就是抓出来发现是C2编译cpu高:
 ```shell script
@@ -206,6 +219,54 @@ after:  8核16GB x 8个
 这种情况可能是高并发情况下触发了什么缺陷。
 可以看看线程池的使用率，看看是哪个线程池飙升了，针对性进行优化业务代码。
 或者可以通过压测或者分解成A1到A3的情况进行处理。
+
+
+## 进水排水缓解思路
+如果实在抓不到原因，不明原因时的缓解手段：
+{% img /images/2022-11/cpu-qos.png 800 1200 cpu-qos %}
+{% img /images/2022-11/cpu-water.png 800 1200 cpu-water %}
+进水：源源不断的访问请求到来；
+排水：处理请求；
+水池：线程池排队队列；
+
+### 增加排水
+1.增加核数、处理线程数（无风险、有成本）；
+2.根据超时时间，取消已超时的任务、线程（false无风险，true有一定风险）
+```java
+// 方法1. 可以用guava的包:
+ListenableFuture<Object> future = Futures.withTimeout(future1, 1, TimeUnit.SECONDS, SC_POOL);
+
+// 方法2. 手动cancel:
+// 主调用的地方捕获超时异常:
+ catch (TimeoutException e) {
+            logger.warn("ruleId {} timeout for userId: {}", ruleId, userId);
+            if (TASK_CANCEL.get() && allowCancel) {
+                checkFuture.cancel(true); // true: 需要底层对于中断是安全的,有一定风险; false: 仅取消未运行
+            }
+            perf("csc.center.rule", "timeout/" + ruleId).logstash();
+        } catch (InterruptedException e) {
+            checkFuture.cancel(true);
+            perf("csc.center.rule", "interrupt/" + ruleId).logstash();
+        }
+// 提交的任务也要捕获中断:
+} catch (Exception e) {
+                //noinspection ConstantConditions
+                if (e instanceof InterruptedException) {
+                    perf(CscInfraExecutorImpl.PERF_NS, "/interrupt", var.getVarKey(), var.getVarId()).logstash();
+                    logger.debug("InterruptedException: {}", var.getVarKey());
+                } else {
+                    throw e;
+                }
+                return null;
+            }
+```
+
+### 减少进水
+1. rpc摘流（无损）;
+2. qos(有损，部分降级):
+对于不同主调区分QOS等级，优先处理核心请求（如路由、打标签）。
+
+
 
 
 # 参考资料
