@@ -71,10 +71,10 @@ JFR作为jvm内置的黑匣子，支持的事件非常细而全，目标是定�
 {% img /images/2023-02/jfc-edit.png 800 1200 jfc-edit %}
 
 默认JAVA_HOME里的jfc开销和大小都太大（>100M/min），可以定制化开销较小的（仅选取关心的事件）。
-[jdk8-small.jfc](./attach/2023-02/jdk8-small.jfc)
-[jdk11-small.jfc](./attach/2023-02/jdk11-small.jfc)
-[default-jdk8.jfc](./attach/2023-02/default-jdk8.jfc)
-[default-jdk11.jfc](./attach/2023-02/default-jdk11.jfc)
+[jdk8-small.jfc](https://xiaoyue26.github.io/attach/2023-02/jdk8-small.jfc)
+[jdk11-small.jfc](https://xiaoyue26.github.io/attach/2023-02/jdk11-small.jfc)
+[default-jdk8.jfc](https://xiaoyue26.github.io/attach/2023-02/default-jdk8.jfc)
+[default-jdk11.jfc](https://xiaoyue26.github.io/attach/2023-02/default-jdk11.jfc)
 
 
 ## 2.采集事件(生成jfr)
