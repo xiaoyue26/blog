@@ -261,3 +261,59 @@ public class ByteStringResource extends AbstractResource {
 }
 
 ```
+
+
+## 展望
+理论上这个场景下（假如不修改业务逻辑），最小内存申请次数应该是2次而不是3次。（解密前、解密后）
+目前多出来的这一次，是背景一节中，grpc代码对于一次数据的响应会进行两次堆内内存的申请，相关源码参考：
+
+```java
+// com.google.protobuf.CodedInputStream.StreamDecoder#readBytesSlowPath
+/**
+     * Like readBytes, but caller must have already checked the fast path: (size <= (bufferSize -
+     * pos) && size > 0 || size == 0)
+     */
+    private ByteString readBytesSlowPath(final int size) throws IOException {
+      final byte[] result = readRawBytesSlowPathOneChunk(size);
+      if (result != null) {
+        // We must copy as the byte array was handed off to the InputStream and a malicious
+        // implementation could retain a reference.
+        return ByteString.copyFrom(result);
+      }
+
+      final int originalBufferPos = pos;
+      final int bufferedBytes = bufferSize - pos;
+
+      // Mark the current buffer consumed.
+      totalBytesRetired += bufferSize;
+      pos = 0;
+      bufferSize = 0;
+
+      // Determine the number of bytes we need to read from the input stream.
+      int sizeLeft = size - bufferedBytes;
+
+      // The size is very large. For security reasons we read them in small
+      // chunks.
+      List<byte[]> chunks = readRawBytesSlowPathRemainingChunks(sizeLeft);
+
+      // OK, got everything.  Now concatenate it all into one buffer.
+      final byte[] bytes = new byte[size];
+
+      // Start by copying the leftover bytes from this.buffer.
+      System.arraycopy(buffer, originalBufferPos, bytes, 0, bufferedBytes);
+
+      // And now all the chunks.
+      int tempPos = bufferedBytes;
+      for (final byte[] chunk : chunks) {
+        System.arraycopy(chunk, 0, bytes, tempPos, chunk.length);
+        tempPos += chunk.length;
+      }
+      
+      return ByteString.wrap(bytes);
+    }
+```
+
+主要是`readRawBytesSlowPathOneChunk`和`copyFrom`这两次。
+2020年有人发现了类似情况，相关issue参考：
+https://github.com/protocolbuffers/protobuf/issues/7899
+目前还比较遗憾出于安全角度（回复是要保持`immutable`）被拒绝无法优化。
