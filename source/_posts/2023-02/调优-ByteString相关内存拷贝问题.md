@@ -317,3 +317,15 @@ public class ByteStringResource extends AbstractResource {
 2020年有人发现了类似情况，相关issue参考：
 https://github.com/protocolbuffers/protobuf/issues/7899
 目前还比较遗憾出于安全角度（回复是要保持`immutable`）被拒绝无法优化。
+
+实际上用户观看一个视频的过程中chrome首先会发一个bytes=0-的请求（最早可能还有一个http到https的307），
+然后如果服务端支持range，chrome会分段range请求，所以服务端会收到同一个文件的多个http请求。
+本篇优化了一半内存分配，最坏gc时间压平到2s；
+再加上临时磁盘缓存，同一个文件多次http请求只会分配3次内存，再调优一下gc配置（固定新生代大小），最坏gc时间压低到了130ms，平时大概是90ms。
+
+```shell script
+#!/bin/bash
+# 删除60min未访问视频
+find /data/tmp/ -amin +60 -name '*.mp4' -type f -delete
+find /data/tmp/ -amin +60 -name '*.MOV' -type f -delete
+```
